@@ -118,19 +118,4 @@ abstract class Builder implements BuilderInterface
 
         throw new BuilderException('Table is required');
     }
-
-    protected function getTableName():? string
-    {
-        return $this->table?->getTableName() ?? null;
-    }
-
-    protected function getPartitionKey(): string
-    {
-        return $this->table?->getPartitionKey() ?? static::TEMPORARY_PK_NAME;
-    }
-
-    protected function getSortKey(): string
-    {
-        return $this->table?->getSortKey() ?? static::TEMPORARY_SK_NAME;
-    }
 }

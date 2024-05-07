@@ -16,13 +16,13 @@ class BatchWriteItem extends Builder
 
     protected array $putItems = [];
     protected array $putItemsKeys = [];
-
     protected array $deleteItems = [];
     protected array $deleteItemsKeys = [];
+    protected array $deleteTableNames = [];
 
-    public function deleteByCompositeKey(
+    public function deleteComposite(
         mixed $pkValue,
-        mixed $skValue,
+        mixed $skValue = null,
         ?string $pkAttribute = null,
         ?string $skAttribute = null,
         TableInterface|string|array|null $table = null,
@@ -31,37 +31,35 @@ class BatchWriteItem extends Builder
 
         $clone->deleteItems[] = [
             $pkValue,
-            $skValue,
+            $skValue ?? $pkValue,
         ];
 
         $clone->deleteItemsKeys[] = [
-            $pkAttribute,
-            $skAttribute,
+            $pkAttribute ?? $table?->getPartitionKey(),
+            $skAttribute ?? $table?->getSortKey(),
         ];
+
+        $clone->deleteTableNames[] = $table?->getTableName();
 
         return $clone;
     }
 
-    public function deleteByKey(
+    public function delete(
         mixed $value,
         ?string $attribute = null,
         TableInterface|string|array|null $table = null,
     ): static {
         $clone = clone $this;
 
-        $table = $clone->createOrGetTable($table);
-
-        if ($attribute === null) {
-            $attribute = $table->getPartitionKey();
-        }
-
-        $clone->requestItems[$table->getTableName()][] = [
-            'DeleteRequest' => [
-                'Key' => [
-                    $attribute => $clone->marshaler->marshalValue($value),
-                ],
-            ],
+        $clone->deleteItems[] = [
+            $value,
         ];
+
+        $clone->deleteItemsKeys[] = [
+            $attribute ?? $table?->getPartitionKey(),
+        ];
+
+        $clone->deleteTableNames[] = $table?->getTableName();
 
         return $clone;
     }
@@ -71,8 +69,8 @@ class BatchWriteItem extends Builder
         $clone = clone $this;
         $table = $table ? $clone->createOrGetTable($table) : null;
 
-        $this->putItems[] = $item;
-        $this->putItemsKeys[] = $table?->getTableName();
+        $clone->putItems[] = $item;
+        $clone->putItemsKeys[] = $table?->getTableName();
 
         return $clone;
     }
@@ -84,7 +82,31 @@ class BatchWriteItem extends Builder
         $config = $this->appendReturnConsumedCapacity($config);
         $config = $this->appendReturnItemCollectionMetrics($config);
 
-        $config['RequestItems'] = $this->requestItems;
+        foreach ($this->putItems as $index => $item) {
+            $tableName = $this->putItemsKeys[$index] ?? $this->table->getTableName();
+            $config['RequestItems'][$tableName][] = [
+                'PutRequest' => [
+                    'Item' => $this->marshaler->marshalItem($item),
+                ],
+            ];
+        }
+
+        $defaultKeys = [
+            $this->table->getPartitionKey(),
+            $this->table->getSortKey(),
+        ];
+
+        foreach ($this->deleteItems as $index => $items) {
+            $tableName = $this->deleteTableNames[$index] ?? $this->table->getTableName();
+
+            foreach ($items as $itemIndex => $value) {
+                $key = $this->deleteItemsKeys[$index][$itemIndex] ?? $defaultKeys[$itemIndex];
+
+                $config['RequestItems'][$tableName][$index]['DeleteRequest']['Key'][$key] = $this->marshaler->marshalValue(
+                    $value
+                );
+            }
+        }
 
         return $config;
     }
