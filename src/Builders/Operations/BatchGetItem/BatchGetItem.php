@@ -48,7 +48,7 @@ class BatchGetItem extends Builder
 
         foreach ($this->requestItems as $tableName => $items) {
             if ($tableName === static::TEMPORARY_TABLE_NAME) {
-                $tableName = $this->table->getTableName();
+                $tableName = $this->getTableName();
             }
 
             $config['RequestItems'][$tableName] = [];
