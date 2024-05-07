@@ -19,7 +19,7 @@ readonly class TransactWriteItemsFacade extends Facade
 {
     protected function createBuilder(): Builder
     {
-        return new TransactWriteItems(marshaler: $this->marshaler);
+        return new TransactWriteItems(table: $this->defaultTable, marshaler: $this->marshaler);
     }
 
     protected function performQuery(Builder $builder): TransactWriteItemsResult

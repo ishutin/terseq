@@ -9,31 +9,31 @@ use Aws\DynamoDb\Marshaler;
 use Closure;
 use GuzzleHttp\Promise\PromiseInterface;
 use Terseq\Builders\Operations\Builder;
+use Terseq\Contracts\Builder\TableInterface;
+
+use function is_callable;
 
 abstract readonly class Facade
 {
     public function __construct(
         protected DynamoDbClient $client,
         protected Marshaler $marshaler = new Marshaler(),
+        protected ?TableInterface $defaultTable = null,
     ) {
     }
 
     public function dispatch(Closure|Builder $builder): mixed
     {
-        if (is_callable($builder)) {
-            $builder = $builder($this->createBuilder());
-        }
-
-        return $this->performQuery($builder);
+        return $this->performQuery(
+            $this->getBuilder($builder),
+        );
     }
 
     public function async(Closure|Builder $builder): PromiseInterface
     {
-        if (is_callable($builder)) {
-            $builder = $builder($this->createBuilder());
-        }
-
-        return $this->performQueryAsync($builder);
+        return $this->performQueryAsync(
+            $this->getBuilder($builder),
+        );
     }
 
     abstract protected function createBuilder(): Builder;
@@ -41,4 +41,23 @@ abstract readonly class Facade
     abstract protected function performQuery(Builder $builder): mixed;
 
     abstract protected function performQueryAsync(Builder $builder): PromiseInterface;
+
+    protected function getBuilder(Closure|Builder $builder): Builder
+    {
+        if (is_callable($builder)) {
+            $builderInstance = $this->createBuilder();
+
+            if ($this->defaultTable) {
+                $builderInstance = $builderInstance->table($this->defaultTable);
+            }
+
+            return $builder($builderInstance);
+        }
+
+        if ($this->defaultTable) {
+            return $builder->table($this->defaultTable);
+        }
+
+        return $builder;
+    }
 }

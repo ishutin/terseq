@@ -22,7 +22,7 @@ readonly class QueryFacade extends Facade
 {
     protected function createBuilder(): Builder
     {
-        return new Query(marshaler: $this->marshaler);
+        return new Query(table: $this->defaultTable, marshaler: $this->marshaler);
     }
 
     protected function performQuery(Builder $builder): QueryResult

@@ -13,7 +13,6 @@ class DeleteItem extends Builder
     use HasOperationByKey;
     use SingleWriteOperations;
 
-
     // https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_DeleteItem.html
     public function getQuery(): array
     {

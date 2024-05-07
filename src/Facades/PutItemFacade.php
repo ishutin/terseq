@@ -19,7 +19,7 @@ readonly class PutItemFacade extends Facade
 {
     protected function createBuilder(): Builder
     {
-        return new PutItem(marshaler: $this->marshaler);
+        return new PutItem(table: $this->defaultTable, marshaler: $this->marshaler);
     }
 
     protected function performQuery(Builder $builder): WriteOperationResult

@@ -19,7 +19,7 @@ readonly class DeleteItemFacade extends Facade
 {
     protected function createBuilder(): Builder
     {
-        return new DeleteItem(marshaler: $this->marshaler);
+        return new DeleteItem(table: $this->defaultTable, marshaler: $this->marshaler);
     }
 
     protected function performQuery(Builder $builder): WriteOperationResult

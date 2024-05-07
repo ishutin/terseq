@@ -19,7 +19,7 @@ readonly class UpdateItemFacade extends Facade
 {
     protected function createBuilder(): Builder
     {
-        return new UpdateItem(marshaler: $this->marshaler);
+        return new UpdateItem(table: $this->defaultTable, marshaler: $this->marshaler);
     }
 
     protected function performQuery(Builder $builder): WriteOperationResult

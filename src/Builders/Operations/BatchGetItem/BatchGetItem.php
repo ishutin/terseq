@@ -21,20 +21,22 @@ class BatchGetItem extends Builder
      */
     protected array $requestItems = [];
 
-    public function get(TableInterface|string|array $table, Closure $closure): static
+    public function get(Closure $closure, TableInterface|string|array|null $table = null): static
     {
         $clone = clone $this;
-        $table = $this->createTable($table);
+        $table = $table ? $clone->createOrGetTable($table) : null;
 
         $get = new BatchGet(table: $table, marshaler: $clone->marshaler);
 
         $get = $closure($get);
 
-        if (isset($clone->requestItems[$table->getTableName()])) {
-            $clone->requestItems[$table->getTableName()] = [];
+        $tableName = $clone->getTableName();
+
+        if (isset($clone->requestItems[$tableName])) {
+            $clone->requestItems[$tableName] = [];
         }
 
-        $clone->requestItems[$table->getTableName()][] = $get;
+        $clone->requestItems[$tableName][] = $get;
 
         return $clone;
     }
@@ -45,12 +47,16 @@ class BatchGetItem extends Builder
         $config = $this->appendReturnConsumedCapacity($config);
 
         foreach ($this->requestItems as $tableName => $items) {
+            if ($tableName === static::TEMPORARY_TABLE_NAME) {
+                $tableName = $this->getTableName();
+            }
+
             $config['RequestItems'][$tableName] = [];
 
             foreach ($items as $item) {
                 $config['RequestItems'][$tableName] = array_merge(
                     $config['RequestItems'][$tableName],
-                    $item->getQuery(),
+                    $item->table($this->table)->getQuery(),
                 );
             }
         }

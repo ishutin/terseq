@@ -18,7 +18,7 @@ readonly class BatchGetItemFacade extends Facade
 {
     protected function createBuilder(): Builder
     {
-        return new BatchGetItem(marshaler: $this->marshaler);
+        return new BatchGetItem(table: $this->defaultTable, marshaler: $this->marshaler);
     }
 
     protected function performQuery(Builder $builder): BatchGetItemResult

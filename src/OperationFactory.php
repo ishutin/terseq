@@ -6,6 +6,7 @@ namespace Terseq;
 
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Marshaler;
+use Terseq\Contracts\Builder\TableInterface;
 use Terseq\Contracts\OperationFactoryInterface;
 use Terseq\Facades\BatchGetItemFacade;
 use Terseq\Facades\BatchWriteItemFacade;
@@ -22,6 +23,7 @@ readonly class OperationFactory implements OperationFactoryInterface
     public function __construct(
         protected DynamoDbClient $client,
         protected Marshaler $marshaler = new Marshaler(),
+        protected ?TableInterface $singleTable = null,
     ) {
     }
 
@@ -30,6 +32,7 @@ readonly class OperationFactory implements OperationFactoryInterface
         return new QueryFacade(
             client: $this->client,
             marshaler: $this->marshaler,
+            defaultTable: $this->singleTable,
         );
     }
 
@@ -38,6 +41,7 @@ readonly class OperationFactory implements OperationFactoryInterface
         return new GetItemFacade(
             client: $this->client,
             marshaler: $this->marshaler,
+            defaultTable: $this->singleTable,
         );
     }
 
@@ -46,6 +50,7 @@ readonly class OperationFactory implements OperationFactoryInterface
         return new DeleteItemFacade(
             client: $this->client,
             marshaler: $this->marshaler,
+            defaultTable: $this->singleTable,
         );
     }
 
@@ -54,6 +59,7 @@ readonly class OperationFactory implements OperationFactoryInterface
         return new UpdateItemFacade(
             client: $this->client,
             marshaler: $this->marshaler,
+            defaultTable: $this->singleTable,
         );
     }
 
@@ -62,6 +68,7 @@ readonly class OperationFactory implements OperationFactoryInterface
         return new PutItemFacade(
             client: $this->client,
             marshaler: $this->marshaler,
+            defaultTable: $this->singleTable,
         );
     }
 
@@ -70,6 +77,7 @@ readonly class OperationFactory implements OperationFactoryInterface
         return new TransactGetItemsFacade(
             client: $this->client,
             marshaler: $this->marshaler,
+            defaultTable: $this->singleTable,
         );
     }
 
@@ -78,6 +86,7 @@ readonly class OperationFactory implements OperationFactoryInterface
         return new TransactWriteItemsFacade(
             client: $this->client,
             marshaler: $this->marshaler,
+            defaultTable: $this->singleTable,
         );
     }
 
@@ -86,6 +95,7 @@ readonly class OperationFactory implements OperationFactoryInterface
         return new BatchGetItemFacade(
             client: $this->client,
             marshaler: $this->marshaler,
+            defaultTable: $this->singleTable,
         );
     }
 
@@ -94,6 +104,7 @@ readonly class OperationFactory implements OperationFactoryInterface
         return new BatchWriteItemFacade(
             client: $this->client,
             marshaler: $this->marshaler,
+            defaultTable: $this->singleTable,
         );
     }
 }
