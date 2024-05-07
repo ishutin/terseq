@@ -42,17 +42,17 @@ class TransactWriteItems extends Builder
      */
     protected array $update = [];
 
-    public function conditionCheck(TableInterface|string|array $table, Closure $closure): static
+    public function conditionCheck(Closure $closure, TableInterface|string|array|null $table = null): static
     {
         $clone = clone $this;
-        $get = new ConditionCheck($clone->createTable($table), $clone->marshaler);
+        $get = new ConditionCheck($table ? $clone->createOrGetTable($table) : null, $clone->marshaler);
 
         $clone->conditionCheck[] = $closure($get);
 
         return $clone;
     }
 
-    public function put(TableInterface|string|array $table, Closure|array $closure): static
+    public function put(Closure|array $closure, TableInterface|string|array|null $table = null): static
     {
         $clone = clone $this;
 
@@ -61,14 +61,17 @@ class TransactWriteItems extends Builder
         }
 
         foreach ($closure as $callback) {
-            $put = new Put($clone->createTable($table), $clone->marshaler);
+            $put = new Put(
+                table: $table ? $clone->createOrGetTable($table) : null,
+                marshaler: $clone->marshaler,
+            );
             $clone->put[] = $callback($put);
         }
 
         return $clone;
     }
 
-    public function delete(TableInterface|string|array $table, Closure|array $closure): static
+    public function delete(Closure|array $closure, TableInterface|string|array|null $table = null): static
     {
         $clone = clone $this;
         if ($closure instanceof Closure) {
@@ -76,14 +79,14 @@ class TransactWriteItems extends Builder
         }
 
         foreach ($closure as $callback) {
-            $delete = new Delete($clone->createTable($table), $clone->marshaler);
+            $delete = new Delete($table ? $clone->createOrGetTable($table) : null, $clone->marshaler);
             $clone->delete[] = $callback($delete);
         }
 
         return $clone;
     }
 
-    public function update(TableInterface|string|array $table, Closure|array $closure): static
+    public function update(Closure|array $closure, TableInterface|string|array|null $table = null): static
     {
         $clone = clone $this;
 
@@ -92,7 +95,7 @@ class TransactWriteItems extends Builder
         }
 
         foreach ($closure as $callback) {
-            $update = new Update($clone->createTable($table), $clone->marshaler);
+            $update = new Update($table ? $clone->createOrGetTable($table) : null, $clone->marshaler);
             $clone->update[] = $callback($update);
         }
 
@@ -107,21 +110,21 @@ class TransactWriteItems extends Builder
         $config = $this->appendReturnItemCollectionMetrics($config);
         $config = $this->appendClientRequestToken($config);
 
-        $config['TransactItems'] = [];
+
         foreach ($this->put as $put) {
-            $config['TransactItems'][] = ['Put' => $put->getQuery()];
+            $config['TransactItems'][] = ['Put' => $put->table($this->table)->getQuery()];
         }
 
         foreach ($this->delete as $delete) {
-            $config['TransactItems'][] = ['Delete' => $delete->getQuery()];
+            $config['TransactItems'][] = ['Delete' => $delete->table($this->table)->getQuery()];
         }
 
         foreach ($this->update as $update) {
-            $config['TransactItems'][] = ['Update' => $update->getQuery()];
+            $config['TransactItems'][] = ['Update' => $update->table($this->table)->getQuery()];
         }
 
         foreach ($this->conditionCheck as $conditionCheck) {
-            $config['TransactItems'][] = ['ConditionCheck' => $conditionCheck->getQuery()];
+            $config['TransactItems'][] = ['ConditionCheck' => $conditionCheck->table($this->table)->getQuery()];
         }
 
         return $config;

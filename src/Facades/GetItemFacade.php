@@ -22,7 +22,7 @@ readonly class GetItemFacade extends Facade
 {
     protected function createBuilder(): Builder
     {
-        return new GetItem(marshaler: $this->marshaler);
+        return new GetItem(table: $this->defaultTable, marshaler: $this->marshaler);
     }
 
     protected function performQuery(Builder $builder): GetItemResult
@@ -30,7 +30,6 @@ readonly class GetItemFacade extends Facade
         $result = $this->client->getItem($builder->getQuery());
 
         $caster = (method_exists($builder, 'getCaster') ? $builder->getCaster() : null) ?? new Caster();
-
 
         return GetItemResult::create($result->toArray(), $this->marshaler, $caster);
     }
@@ -41,6 +40,6 @@ readonly class GetItemFacade extends Facade
 
         return $this->client
             ->getItemAsync($builder->getQuery())
-            ->then(static fn (Result $result) => GetItemResult::create($result->toArray(), $this->marshaler, $caster));
+            ->then(fn (Result $result) => GetItemResult::create($result->toArray(), $this->marshaler, $caster));
     }
 }

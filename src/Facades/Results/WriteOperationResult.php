@@ -57,11 +57,11 @@ readonly class WriteOperationResult
     public static function create(
         array $result,
         Marshaler $marshaler = new Marshaler(),
-    ): static {
+    ): self {
         $result = static::convertAttributes($result, $marshaler);
         $result = static::convertItemCollectionMetric($result, $marshaler);
 
-        return new static(
+        return new self(
             attributes: $result['Attributes'] ?? null,
             consumedCapacity: $result['ConsumedCapacity'] ?? null,
             itemCollectionMetrics: $result['ItemCollectionMetrics'] ?? null,
