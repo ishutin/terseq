@@ -32,7 +32,7 @@ abstract class Builder implements BuilderInterface
         public Marshaler $marshaler = new Marshaler(),
     ) {
         if ($table !== null) {
-            $this->table = $this->createTable($table);
+            $this->table = $this->createOrGetTable($table);
         }
 
         $this->valuesStorage = new ValuesStorage();
@@ -47,8 +47,12 @@ abstract class Builder implements BuilderInterface
 
     public function table(TableInterface|string|array|null $table): static
     {
+        if ($table === null) {
+            return $this;
+        }
+
         $clone = clone $this;
-        $clone->table = $clone->createTable($table);
+        $clone->table = $clone->createOrGetTable($table);
 
         return $clone;
     }
@@ -64,10 +68,10 @@ abstract class Builder implements BuilderInterface
         ];
     }
 
-    protected function createTable(TableInterface|array|string|null $table): TableInterface
+    protected function createOrGetTable(TableInterface|array|string|null $table): TableInterface
     {
-        if ($table === null) {
-            throw new BuilderException('Table is required');
+        if ($this->table) {
+            return $this->table;
         }
 
         if ($table instanceof TableInterface) {
@@ -111,5 +115,22 @@ abstract class Builder implements BuilderInterface
                 }
             };
         }
+
+        throw new BuilderException('Table is required');
+    }
+
+    protected function getTableName():? string
+    {
+        return $this->table?->getTableName() ?? null;
+    }
+
+    protected function getPartitionKey(): string
+    {
+        return $this->table?->getPartitionKey() ?? static::TEMPORARY_PK_NAME;
+    }
+
+    protected function getSortKey(): string
+    {
+        return $this->table?->getSortKey() ?? static::TEMPORARY_SK_NAME;
     }
 }

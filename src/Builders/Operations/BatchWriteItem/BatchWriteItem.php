@@ -14,47 +14,42 @@ class BatchWriteItem extends Builder
     use ReturnConsumedCapacity;
     use ReturnItemCollectionMetrics;
 
-    protected array $requestItems = [];
+    protected array $putItems = [];
+    protected array $putItemsKeys = [];
+
+    protected array $deleteItems = [];
+    protected array $deleteItemsKeys = [];
 
     public function deleteByCompositeKey(
-        TableInterface|string|array $table,
         mixed $pkValue,
         mixed $skValue,
         ?string $pkAttribute = null,
         ?string $skAttribute = null,
+        TableInterface|string|array|null $table = null,
     ): static {
         $clone = clone $this;
 
-        $table = $clone->createTable($table);
+        $clone->deleteItems[] = [
+            $pkValue,
+            $skValue,
+        ];
 
-        if ($pkAttribute === null) {
-            $pkAttribute = $table->getPartitionKey();
-        }
-
-        if ($skAttribute === null) {
-            $skAttribute = $table->getSortKey();
-        }
-
-        $clone->requestItems[$table->getTableName()][] = [
-            'DeleteRequest' => [
-                'Key' => [
-                    $pkAttribute => $clone->marshaler->marshalValue($pkValue),
-                    $skAttribute => $clone->marshaler->marshalValue($skValue),
-                ],
-            ],
+        $clone->deleteItemsKeys[] = [
+            $pkAttribute,
+            $skAttribute,
         ];
 
         return $clone;
     }
 
     public function deleteByKey(
-        TableInterface|string|array $table,
         mixed $value,
         ?string $attribute = null,
+        TableInterface|string|array|null $table = null,
     ): static {
         $clone = clone $this;
 
-        $table = $clone->createTable($table);
+        $table = $clone->createOrGetTable($table);
 
         if ($attribute === null) {
             $attribute = $table->getPartitionKey();
@@ -71,15 +66,13 @@ class BatchWriteItem extends Builder
         return $clone;
     }
 
-    public function put(TableInterface|string|array $table, array $item): static
+    public function put(array $item, TableInterface|string|array|null $table = null): static
     {
         $clone = clone $this;
-        $table = $clone->createTable($table);
-        $clone->requestItems[$table->getTableName()][] = [
-            'PutRequest' => [
-                'Item' => $clone->marshaler->marshalItem($item),
-            ],
-        ];
+        $table = $table ? $clone->createOrGetTable($table) : null;
+
+        $this->putItems[] = $item;
+        $this->putItemsKeys[] = $table?->getTableName();
 
         return $clone;
     }

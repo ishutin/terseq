@@ -17,6 +17,7 @@ class BatchGet extends Builder
     use HasAttributes;
     use AppendAttributes;
 
+    protected array $values = [];
     protected array $keys = [];
 
     public function composite(
@@ -27,17 +28,14 @@ class BatchGet extends Builder
     ): static {
         $clone = clone $this;
 
-        if ($pkAttribute === null) {
-            $pkAttribute = $clone->table->getPartitionKey();
-        }
-
-        if ($skAttribute === null) {
-            $skAttribute = $clone->table->getSortKey();
-        }
+        $clone->values[] = [
+            $pkValue,
+            $skValue ?? $pkValue,
+        ];
 
         $clone->keys[] = [
-            $pkAttribute => $clone->marshaler->marshalValue($pkValue),
-            $skAttribute => $clone->marshaler->marshalValue($skValue ?? $pkValue),
+            $pkAttribute,
+            $skAttribute,
         ];
 
         return $clone;
@@ -49,10 +47,12 @@ class BatchGet extends Builder
     ): static {
         $clone = clone $this;
 
-        $attribute = $attribute ?? $clone->table->getPartitionKey();
+        $clone->values[] = [
+            $value,
+        ];
 
         $clone->keys[] = [
-            $attribute => $clone->marshaler->marshalValue($value),
+            $attribute,
         ];
 
         return $clone;
@@ -66,7 +66,19 @@ class BatchGet extends Builder
         $config = $this->appendProjectionExpression($config);
         $config = $this->appendAttributes($config, withValues: false);
 
-        $config['Keys'] = $this->keys;
+        $config['Keys'] = [];
+
+        $defaultKeys = [
+            $this->table->getPartitionKey(),
+            $this->table->getSortKey(),
+        ];
+
+        foreach ($this->values as $index => $attributes) {
+            foreach ($attributes as $keyIndex => $value) {
+                $key = $this->keys[$index][$keyIndex] ?? $defaultKeys[$keyIndex];
+                $config['Keys'][$index][$key] = $this->marshaler->marshalValue($value);
+            }
+        }
 
         return $config;
     }

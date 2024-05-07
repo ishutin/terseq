@@ -17,24 +17,18 @@ class BatchGetItem extends Builder
     use ReturnConsumedCapacity;
 
     /**
-     * @var BatchGet[][] $requestItems
+     * @var BatchGet[] $requestItems
      */
     protected array $requestItems = [];
+    protected array $requestItemsKeys = [];
 
-    public function get(TableInterface|string|array $table, Closure $closure): static
+    public function get(Closure $closure, TableInterface|string|array|null $table = null): static
     {
         $clone = clone $this;
-        $table = $this->createTable($table);
+        $table = $table ? $clone->createOrGetTable($table) : null;
 
-        $get = new BatchGet(table: $table, marshaler: $clone->marshaler);
-
-        $get = $closure($get);
-
-        if (isset($clone->requestItems[$table->getTableName()])) {
-            $clone->requestItems[$table->getTableName()] = [];
-        }
-
-        $clone->requestItems[$table->getTableName()][] = $get;
+        $clone->requestItems[] = $closure(new BatchGet(table: $table, marshaler: $clone->marshaler));
+        $clone->requestItemsKeys[] = $table?->getTableName();
 
         return $clone;
     }
@@ -44,15 +38,13 @@ class BatchGetItem extends Builder
         $config = $this->createConfig();
         $config = $this->appendReturnConsumedCapacity($config);
 
-        foreach ($this->requestItems as $tableName => $items) {
-            $config['RequestItems'][$tableName] = [];
+        foreach ($this->requestItems as $keyIndex => $item) {
+            $key = $this->requestItemsKeys[$keyIndex] ?? $this->table->getTableName();
 
-            foreach ($items as $item) {
-                $config['RequestItems'][$tableName] = array_merge(
-                    $config['RequestItems'][$tableName],
-                    $item->getQuery(),
-                );
-            }
+            $config['RequestItems'][$key] = array_merge(
+                $config['RequestItems'][$key] ?? [],
+                $item->table($this->table)->getQuery(),
+            );
         }
 
         return $config;
