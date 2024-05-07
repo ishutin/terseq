@@ -27,17 +27,12 @@ class BatchGet extends Builder
     ): static {
         $clone = clone $this;
 
-        if ($pkAttribute === null) {
-            $pkAttribute = $clone->table->getPartitionKey();
-        }
-
-        if ($skAttribute === null) {
-            $skAttribute = $clone->table->getSortKey();
-        }
+        $pkAttribute = $pkAttribute ?? $clone->getPartitionKey();
+        $skAttribute = $skAttribute ?? $clone->getSortKey();
 
         $clone->keys[] = [
-            $pkAttribute => $clone->marshaler->marshalValue($pkValue),
-            $skAttribute => $clone->marshaler->marshalValue($skValue ?? $pkValue),
+            $pkAttribute => $pkValue,
+            $skAttribute => $skValue ?? $pkValue,
         ];
 
         return $clone;
@@ -49,10 +44,10 @@ class BatchGet extends Builder
     ): static {
         $clone = clone $this;
 
-        $attribute = $attribute ?? $clone->table->getPartitionKey();
+        $attribute = $attribute ?? $clone->getPartitionKey();
 
         $clone->keys[] = [
-            $attribute => $clone->marshaler->marshalValue($value),
+            $attribute => $value,
         ];
 
         return $clone;
@@ -66,7 +61,21 @@ class BatchGet extends Builder
         $config = $this->appendProjectionExpression($config);
         $config = $this->appendAttributes($config, withValues: false);
 
-        $config['Keys'] = $this->keys;
+        $config['Keys'] = [];
+
+        foreach ($this->keys as $index => $attributes) {
+            foreach ($attributes as $attribute => $value) {
+                if ($attribute === static::TEMPORARY_PK_NAME) {
+                    $attribute = $this->getPartitionKey();
+                }
+
+                if ($attribute === static::TEMPORARY_SK_NAME) {
+                    $attribute = $this->getSortKey();
+                }
+
+                $config['Keys'][$index][$attribute] = $this->marshaler->marshalValue($value);
+            }
+        }
 
         return $config;
     }

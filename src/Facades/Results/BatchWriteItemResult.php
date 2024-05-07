@@ -17,11 +17,11 @@ readonly class BatchWriteItemResult
     ) {
     }
 
-    public static function create(array $result, Marshaler $marshaler = new Marshaler()): static
+    public static function create(array $result, Marshaler $marshaler = new Marshaler()): self
     {
         $result = static::convertUnprocessedItems($result, $marshaler);
 
-        return new static(
+        return new self(
             consumedCapacity: $result['ConsumedCapacity'] ?? null,
             itemCollectionMetrics: $result['ItemCollectionMetrics'] ?? null,
             unprocessedItems: $result['UnprocessedItems'] ?? null,

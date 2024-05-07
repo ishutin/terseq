@@ -19,7 +19,7 @@ readonly class TransactGetItemsFacade extends Facade
 {
     protected function createBuilder(): Builder
     {
-        return new TransactGetItems(marshaler: $this->marshaler);
+        return new TransactGetItems(table: $this->defaultTable, marshaler: $this->marshaler);
     }
 
     protected function performQuery(Builder $builder): TransactGetItemsResult

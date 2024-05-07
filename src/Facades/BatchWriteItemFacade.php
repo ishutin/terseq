@@ -18,7 +18,7 @@ readonly class BatchWriteItemFacade extends Facade
 {
     protected function createBuilder(): BatchWriteItem
     {
-        return new BatchWriteItem(marshaler: $this->marshaler);
+        return new BatchWriteItem(table: $this->defaultTable, marshaler: $this->marshaler);
     }
 
     protected function performQuery(Builder $builder): BatchWriteItemResult

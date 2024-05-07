@@ -17,15 +17,15 @@ class BatchWriteItem extends Builder
     protected array $requestItems = [];
 
     public function deleteByCompositeKey(
-        TableInterface|string|array $table,
         mixed $pkValue,
         mixed $skValue,
         ?string $pkAttribute = null,
         ?string $skAttribute = null,
+        TableInterface|string|array|null $table = null
     ): static {
         $clone = clone $this;
 
-        $table = $clone->createTable($table);
+        $table = $clone->createOrGetTable($table);
 
         if ($pkAttribute === null) {
             $pkAttribute = $table->getPartitionKey();
@@ -48,13 +48,13 @@ class BatchWriteItem extends Builder
     }
 
     public function deleteByKey(
-        TableInterface|string|array $table,
         mixed $value,
         ?string $attribute = null,
+        TableInterface|string|array|null $table = null,
     ): static {
         $clone = clone $this;
 
-        $table = $clone->createTable($table);
+        $table = $clone->createOrGetTable($table);
 
         if ($attribute === null) {
             $attribute = $table->getPartitionKey();
@@ -71,10 +71,10 @@ class BatchWriteItem extends Builder
         return $clone;
     }
 
-    public function put(TableInterface|string|array $table, array $item): static
+    public function put(array $item, TableInterface|string|array|null $table = null): static
     {
         $clone = clone $this;
-        $table = $clone->createTable($table);
+        $table = $clone->createOrGetTable($table);
         $clone->requestItems[$table->getTableName()][] = [
             'PutRequest' => [
                 'Item' => $clone->marshaler->marshalItem($item),

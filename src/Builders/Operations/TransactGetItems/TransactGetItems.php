@@ -25,7 +25,7 @@ class TransactGetItems extends Builder
      */
     protected array $get = [];
 
-    public function get(TableInterface|string|array $table, Closure|array $closure): static
+    public function get(Closure|array $closure, TableInterface|string|array|null $table = null): static
     {
         $clone = clone $this;
         if ($closure instanceof Closure) {
@@ -33,7 +33,10 @@ class TransactGetItems extends Builder
         }
 
         foreach ($closure as $callback) {
-            $get = new Get($clone->createTable($table), $clone->marshaler);
+            $get = new Get(
+                table: $table ? $clone->createOrGetTable($table) : null,
+                marshaler: $clone->marshaler,
+            );
             $clone->get[] = $callback($get);
         }
 

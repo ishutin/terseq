@@ -20,10 +20,10 @@ readonly class TransactGetItemsResult
     public static function create(
         array $result,
         Marshaler $marshaler,
-    ): static {
+    ): self {
         $result = static::convertResponses($result, $marshaler);
 
-        return new static(
+        return new self(
             consumedCapacity: $result['ConsumedCapacity'] ?? null,
             responses: $result['Responses'] ?? null,
         );
