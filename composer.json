@@ -3,7 +3,7 @@
     "description": "Query Builder for AWS DynamoDB",
     "type": "library",
     "license": "MIT",
-    "version": "1.0.0",
+    "version": "1.2.0",
     "scripts": {
         "analyse": "phpstan --level=5 --memory-limit=1G analyse src tests",
         "tests": "phpunit"
