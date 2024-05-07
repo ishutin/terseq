@@ -16,13 +16,6 @@ use function is_string;
 
 abstract class Builder implements BuilderInterface
 {
-    // Temporary table name, pk name and sk name
-    // Used when table is not provided, so it will use these default values
-    // And when table is provided as string or array, this values will be replaced with the provided values
-    protected const string TEMPORARY_TABLE_NAME = '_terseq_default_table_';
-    protected const string TEMPORARY_PK_NAME = '_terseq_default_pk_name_';
-    protected const string TEMPORARY_SK_NAME = '_terseq_default_sk_name_';
-
     public readonly ValuesStorage $valuesStorage;
 
     public ?TableInterface $table = null;
@@ -124,20 +117,5 @@ abstract class Builder implements BuilderInterface
         }
 
         throw new BuilderException('Table is required');
-    }
-
-    protected function getTableName(): string
-    {
-        return $this->table?->getTableName() ?? static::TEMPORARY_TABLE_NAME;
-    }
-
-    protected function getPartitionKey(): string
-    {
-        return $this->table?->getPartitionKey() ?? static::TEMPORARY_PK_NAME;
-    }
-
-    protected function getSortKey(): string
-    {
-        return $this->table?->getSortKey() ?? static::TEMPORARY_SK_NAME;
     }
 }

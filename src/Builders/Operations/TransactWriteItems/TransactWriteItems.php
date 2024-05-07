@@ -42,12 +42,23 @@ class TransactWriteItems extends Builder
      */
     protected array $update = [];
 
-    public function conditionCheck(Closure $closure, TableInterface|string|array|null $table = null): static
+    public function conditionCheck(Closure|array $closure, TableInterface|string|array|null $table = null): static
     {
         $clone = clone $this;
-        $get = new ConditionCheck($table ? $clone->createOrGetTable($table) : null, $clone->marshaler);
 
-        $clone->conditionCheck[] = $closure($get);
+        if ($closure instanceof Closure) {
+            $closure = [$closure];
+        }
+
+
+        foreach ($closure as $callback) {
+            $clone->conditionCheck[] = $callback(
+                new ConditionCheck(
+                    table: $table ? $clone->createOrGetTable($table) : null,
+                    marshaler: $clone->marshaler,
+                ),
+            );
+        }
 
         return $clone;
     }
@@ -61,11 +72,12 @@ class TransactWriteItems extends Builder
         }
 
         foreach ($closure as $callback) {
-            $put = new Put(
-                table: $table ? $clone->createOrGetTable($table) : null,
-                marshaler: $clone->marshaler,
+            $clone->put[] = $callback(
+                new Put(
+                    table: $table ? $clone->createOrGetTable($table) : null,
+                    marshaler: $clone->marshaler,
+                ),
             );
-            $clone->put[] = $callback($put);
         }
 
         return $clone;
@@ -79,8 +91,9 @@ class TransactWriteItems extends Builder
         }
 
         foreach ($closure as $callback) {
-            $delete = new Delete($table ? $clone->createOrGetTable($table) : null, $clone->marshaler);
-            $clone->delete[] = $callback($delete);
+            $clone->delete[] = $callback(
+                new Delete($table ? $clone->createOrGetTable($table) : null, $clone->marshaler),
+            );
         }
 
         return $clone;
@@ -95,8 +108,9 @@ class TransactWriteItems extends Builder
         }
 
         foreach ($closure as $callback) {
-            $update = new Update($table ? $clone->createOrGetTable($table) : null, $clone->marshaler);
-            $clone->update[] = $callback($update);
+            $clone->update[] = $callback(
+                new Update($table ? $clone->createOrGetTable($table) : null, $clone->marshaler),
+            );
         }
 
         return $clone;

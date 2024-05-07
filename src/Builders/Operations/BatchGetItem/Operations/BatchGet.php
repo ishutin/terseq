@@ -17,6 +17,7 @@ class BatchGet extends Builder
     use HasAttributes;
     use AppendAttributes;
 
+    protected array $values = [];
     protected array $keys = [];
 
     public function composite(
@@ -27,12 +28,14 @@ class BatchGet extends Builder
     ): static {
         $clone = clone $this;
 
-        $pkAttribute = $pkAttribute ?? $clone->getPartitionKey();
-        $skAttribute = $skAttribute ?? $clone->getSortKey();
+        $clone->values[] = [
+            $pkValue,
+            $skValue ?? $pkValue,
+        ];
 
         $clone->keys[] = [
-            $pkAttribute => $pkValue,
-            $skAttribute => $skValue ?? $pkValue,
+            $pkAttribute,
+            $skAttribute,
         ];
 
         return $clone;
@@ -44,10 +47,12 @@ class BatchGet extends Builder
     ): static {
         $clone = clone $this;
 
-        $attribute = $attribute ?? $clone->getPartitionKey();
+        $clone->values[] = [
+            $value,
+        ];
 
         $clone->keys[] = [
-            $attribute => $value,
+            $attribute,
         ];
 
         return $clone;
@@ -63,17 +68,15 @@ class BatchGet extends Builder
 
         $config['Keys'] = [];
 
-        foreach ($this->keys as $index => $attributes) {
-            foreach ($attributes as $attribute => $value) {
-                if ($attribute === static::TEMPORARY_PK_NAME) {
-                    $attribute = $this->getPartitionKey();
-                }
+        $defaultKeys = [
+            $this->table->getPartitionKey(),
+            $this->table->getSortKey(),
+        ];
 
-                if ($attribute === static::TEMPORARY_SK_NAME) {
-                    $attribute = $this->getSortKey();
-                }
-
-                $config['Keys'][$index][$attribute] = $this->marshaler->marshalValue($value);
+        foreach ($this->values as $index => $attributes) {
+            foreach ($attributes as $keyIndex => $value) {
+                $key = $this->keys[$index][$keyIndex] ?? $defaultKeys[$keyIndex];
+                $config['Keys'][$index][$key] = $this->marshaler->marshalValue($value);
             }
         }
 

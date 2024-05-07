@@ -33,11 +33,12 @@ class TransactGetItems extends Builder
         }
 
         foreach ($closure as $callback) {
-            $get = new Get(
-                table: $table ? $clone->createOrGetTable($table) : null,
-                marshaler: $clone->marshaler,
+            $clone->get[] = $callback(
+                new Get(
+                    table: $table ? $clone->createOrGetTable($table) : null,
+                    marshaler: $clone->marshaler,
+                ),
             );
-            $clone->get[] = $callback($get);
         }
 
         return $clone;

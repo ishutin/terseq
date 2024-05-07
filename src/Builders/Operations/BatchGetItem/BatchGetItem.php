@@ -17,26 +17,18 @@ class BatchGetItem extends Builder
     use ReturnConsumedCapacity;
 
     /**
-     * @var BatchGet[][] $requestItems
+     * @var BatchGet[] $requestItems
      */
     protected array $requestItems = [];
+    protected array $requestItemsKeys = [];
 
     public function get(Closure $closure, TableInterface|string|array|null $table = null): static
     {
         $clone = clone $this;
         $table = $table ? $clone->createOrGetTable($table) : null;
 
-        $get = new BatchGet(table: $table, marshaler: $clone->marshaler);
-
-        $get = $closure($get);
-
-        $tableName = $clone->getTableName();
-
-        if (isset($clone->requestItems[$tableName])) {
-            $clone->requestItems[$tableName] = [];
-        }
-
-        $clone->requestItems[$tableName][] = $get;
+        $clone->requestItems[] = $closure(new BatchGet(table: $table, marshaler: $clone->marshaler));
+        $clone->requestItemsKeys[] = $table?->getTableName();
 
         return $clone;
     }
@@ -46,19 +38,13 @@ class BatchGetItem extends Builder
         $config = $this->createConfig();
         $config = $this->appendReturnConsumedCapacity($config);
 
-        foreach ($this->requestItems as $tableName => $items) {
-            if ($tableName === static::TEMPORARY_TABLE_NAME) {
-                $tableName = $this->getTableName();
-            }
+        foreach ($this->requestItems as $keyIndex => $item) {
+            $key = $this->requestItemsKeys[$keyIndex] ?? $this->table->getTableName();
 
-            $config['RequestItems'][$tableName] = [];
-
-            foreach ($items as $item) {
-                $config['RequestItems'][$tableName] = array_merge(
-                    $config['RequestItems'][$tableName],
-                    $item->table($this->table)->getQuery(),
-                );
-            }
+            $config['RequestItems'][$key] = array_merge(
+                $config['RequestItems'][$key] ?? [],
+                $item->table($this->table)->getQuery(),
+            );
         }
 
         return $config;
