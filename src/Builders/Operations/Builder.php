@@ -113,8 +113,8 @@ abstract class Builder implements BuilderInterface
                 {
                     return new Keys(
                         partitionKey: $this->table[1] ?? $this->table['pk'] ?? throw new BuilderException(
-                        'Partition key is required',
-                    ),
+                            'Partition key is required',
+                        ),
                         sortKey: $this->table[2] ?? $this->table['sk'] ?? null,
                     );
                 }
