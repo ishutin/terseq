@@ -39,13 +39,6 @@ abstract class Builder implements BuilderInterface
         $this->valuesStorage = new ValuesStorage();
     }
 
-    public static function build(
-        TableInterface|string|array|null $table = null,
-        Marshaler $marshaler = new Marshaler(),
-    ): static {
-        return new static(table: $table, marshaler: $marshaler);
-    }
-
     public function table(TableInterface|string|array|null $table): static
     {
         if ($this->table !== null) {
@@ -120,8 +113,8 @@ abstract class Builder implements BuilderInterface
                 {
                     return new Keys(
                         partitionKey: $this->table[1] ?? $this->table['pk'] ?? throw new BuilderException(
-                            'Partition key is required',
-                        ),
+                        'Partition key is required',
+                    ),
                         sortKey: $this->table[2] ?? $this->table['sk'] ?? null,
                     );
                 }

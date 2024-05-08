@@ -1,10 +1,12 @@
 # Terseq: AWS DynamoDB Query Builder
 
-This document provides a comprehensive guide on how to utilize the Terseq library to build and execute queries on AWS DynamoDB using the AWS SDK for PHP.
+This document provides a comprehensive guide on how to utilize the Terseq library to build and execute queries on AWS
+DynamoDB using the AWS SDK for PHP.
 
 ## Features
 
 Terseq supports building queries for the following DynamoDB operations:
+
 - GetItem
 - PutItem
 - UpdateItem
@@ -69,7 +71,9 @@ $getItemFacade->dispatch($query);
 ```
 
 #### Create builder manually (not recommended)
-In most cases, you should use the Facade or short syntax. Facade automatically creates a builder for you and correctly resolves all dependencies.
+
+In most cases, you should use the Facade or short syntax. Facade automatically creates a builder for you and correctly
+resolves all dependencies.
 
 But if you want to create a builder manually, you can do it like this:
 
@@ -82,10 +86,12 @@ $builder = (new GetItem())
 $factory->getItem()->dispatch($builder);
 ```
 
-Important: if you use this method, and you use single-table design by library, in most cases DO NOT USE Builder `getQuery` method, because it will throw an exception. 
+Important: if you use this method, and you use single-table design by library, in most cases DO NOT USE
+Builder `getQuery` method, because it will throw an exception.
 If you want to see the query, use `getQuery` method from the Facade.
 
 Example:
+
 ```php
 use Terseq\Builders\Operations\GetItem\GetItem;
 $factory->getItem()->getQuery(
@@ -93,7 +99,6 @@ $factory->getItem()->getQuery(
         ->pk('super-cool-id'),
 );
 ```
-
 
 ### Operations
 
@@ -280,42 +285,36 @@ Table name and keys can be passed as array, string or object of `Terseq\Contract
 ### Example of passing as array
 
 ```php
-$query = \Terseq\Builders\Operations\DeleteItem\DeleteItem::build()
-    ->table(['TableName', 'PartitionKey', 'SortKey']);
+new DeleteItem(table: ['TableName', 'PartitionKey', 'SortKey']);
 ```
 
 OR
 
 ```php
-$query = \Terseq\Builders\Operations\DeleteItem\DeleteItem::build()
-    ->table(['TableName', 'PartitionKey']); // Sort key by default is null
+new DeleteItem(table: ['TableName', 'PartitionKey']); // Sort key by default is null
 ```
 
 OR
 
 ```php
-$query = \Terseq\Builders\Operations\DeleteItem\DeleteItem::build()
-    ->table(['TableName']); // Sort key by default is null, Partition key by default is 'Id'
+new DeleteItem(table: ['TableName']); // Sort key by default is null, Partition key by default is 'Id'
 ```
 
 OR
 
 ```php
-$query = \Terseq\Builders\Operations\DeleteItem\DeleteItem::build()
-    ->table([
+new DeleteItem(table: [
       'table' => 'TableName',
       'pk' => 'PartitionKey',
       'sk' => 'SortKey',
     ]);
 ```
 
-
 ### Example of passing as string
 
 ```php
-$query = \Terseq\Builders\Operations\DeleteItem\DeleteItem::build()
-    ->table('TableName'); // Sort key by default is null, partition key by default is 'Id'
- ```
+new DeleteItem(table: 'TableName'); // Sort key by default is null, partition key by default is 'Id'
+```
 
 ### Example of passing as object
 
@@ -382,7 +381,8 @@ class MyTable extends \Terseq\Builders\Table
 
 ## Single-table design (recommended)
 
-Library supports [single-table design](https://aws.amazon.com/blogs/compute/creating-a-single-table-design-with-amazon-dynamodb/).
+Library
+supports [single-table design](https://aws.amazon.com/blogs/compute/creating-a-single-table-design-with-amazon-dynamodb/).
 
 ### Example of using single-table design
 
