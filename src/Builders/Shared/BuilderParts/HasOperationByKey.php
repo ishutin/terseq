@@ -46,14 +46,13 @@ trait HasOperationByKey
 
         if ($this->pkValue) {
             $config['Key'] = [
-                $this->table->getPartitionKey() => $this->marshaler->marshalValue($this->pkValue),
+                $this->table->getKeysFromMemory()->partitionKey => $this->marshaler->marshalValue($this->pkValue),
             ];
         }
 
         if ($this->skValue) {
-            $config['Key'][$this->table->getSortKey()] = $this->marshaler->marshalValue($this->skValue);
+            $config['Key'][$this->table->getKeysFromMemory()->sortKey] = $this->marshaler->marshalValue($this->skValue);
         }
-
 
         return $config;
     }

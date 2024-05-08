@@ -8,13 +8,29 @@ use Terseq\Contracts\Builder\TableInterface;
 
 abstract class Table implements TableInterface
 {
-    public function getPartitionKey(): string
+    protected ?Keys $keys = null;
+    protected ?array $globalSecondaryIndexMap = null;
+
+    public function getGlobalSecondaryIndexMap(): ?array
     {
-        return 'PK';
+        return null;
     }
 
-    public function getSortKey(): string
+    public function getGlobalSecondaryIndexMapFromMemory(): ?array
     {
-        return 'SK';
+        if (!$this->globalSecondaryIndexMap) {
+            $this->globalSecondaryIndexMap = $this->getGlobalSecondaryIndexMap();
+        }
+
+        return $this->globalSecondaryIndexMap;
+    }
+
+    public function getKeysFromMemory(): Keys
+    {
+        if (!$this->keys) {
+            $this->keys = $this->getKeys();
+        }
+
+        return $this->keys;
     }
 }

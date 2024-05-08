@@ -180,14 +180,14 @@ OR
 
 ```php
 $query = \Terseq\Builders\Operations\DeleteItem\DeleteItem::build()
-    ->table(['TableName', 'PartitionKey']); // Sort key by default is 'SK'
+    ->table(['TableName', 'PartitionKey']); // Sort key by default is null
 ```
 
 OR
 
 ```php
 $query = \Terseq\Builders\Operations\DeleteItem\DeleteItem::build()
-    ->table(['TableName']); // Sort key by default is 'SK', Partition key by default is 'PK'
+    ->table(['TableName']); // Sort key by default is null, Partition key by default is 'Id'
 ```
 
 OR
@@ -201,11 +201,12 @@ $query = \Terseq\Builders\Operations\DeleteItem\DeleteItem::build()
     ]);
 ```
 
+
 ### Example of passing as string
 
 ```php
 $query = \Terseq\Builders\Operations\DeleteItem\DeleteItem::build()
-    ->table('TableName'); // Sort key by default is 'SK', partition key by default is 'PK'
+    ->table('TableName'); // Sort key by default is null, partition key by default is 'Id'
  ```
 
 ### Example of passing as object
@@ -213,13 +214,19 @@ $query = \Terseq\Builders\Operations\DeleteItem\DeleteItem::build()
 ```php
 class MyTable extends \Terseq\Builders\Table 
 {
-    public function getTableName() : string{
-        return 'MyTable';
+    public function getTableName(): string
+    {
+        return 'Books';
+    }
+
+    public function getKeys(): Keys
+    {
+        return new Keys(partitionKey: 'BookId', sortKey: null);
     }
 }
 
 $query = \Terseq\Builders\Operations\DeleteItem\DeleteItem::build()
-    ->table(new MyTable()); // Sort key by default is 'SK', partition key by default is 'PK'
+    ->table(new MyTable()); 
 ```
 
 OR
@@ -227,17 +234,21 @@ OR
 ```php
 class MyTable extends \Terseq\Builders\Table 
 {
-    public function getTableName() : string{
-        return 'MyTable';
-    }
-    
-    public function getPartitionKey() : string{
-        return 'MyPartitionKey';
-    }
-    
-    public function getSortKey() : string
+    public function getTableName(): string
     {
-        return 'MySortKey';
+        return 'Books';
+    }
+
+    public function getKeys(): Keys
+    {
+        return new Keys(partitionKey: 'BookId', sortKey: 'Year');
+    }
+
+    public function getGlobalSecondaryIndexMap(): ?array
+    {
+        return [
+            'AuthorIndex' => new Keys(partitionKey: 'AuthorId', sortKey: 'AuthorBornYear'),
+        ];
     }
 }
 
@@ -249,7 +260,7 @@ $query = \Terseq\Builders\Operations\DeleteItem\DeleteItem::build()
 
 Library supports [single-table design](https://aws.amazon.com/blogs/compute/creating-a-single-table-design-with-amazon-dynamodb/).
 
-### Example of passing as array
+### Example of using single-table design
 
 ```php
 $factory = new OperationFactory(
@@ -258,7 +269,12 @@ $factory = new OperationFactory(
     singleTable: new class extends \Terseq\Builders\Table {
         public function getTableName(): string
         {
-            return 'SingleTableName';
+            return 'Books';
+        }
+        
+        public function getKeys(): Keys
+        {
+            return new Keys(partitionKey: 'BookId');
         }
     },
 );

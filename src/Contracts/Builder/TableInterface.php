@@ -4,11 +4,20 @@ declare(strict_types=1);
 
 namespace Terseq\Contracts\Builder;
 
+use Terseq\Builders\Keys;
+
 interface TableInterface
 {
     public function getTableName(): string;
 
-    public function getPartitionKey(): string;
+    public function getKeys(): Keys;
 
-    public function getSortKey(): string;
+    /**
+     * @return array<string, Keys>|null
+     */
+    public function getGlobalSecondaryIndexMap(): ?array;
+
+    public function getKeysFromMemory(): Keys;
+
+    public function getGlobalSecondaryIndexMapFromMemory(): ?array;
 }

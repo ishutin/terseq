@@ -10,14 +10,17 @@ use Terseq\Builders\Operations\Builder;
 use Terseq\Builders\Operations\Query\Enums\Select;
 use Terseq\Builders\Operations\Query\Expressions\FilterExpression;
 use Terseq\Builders\Operations\Query\Expressions\SortKey;
+use Terseq\Builders\Operations\Query\Expressions\SortKeyCondition;
 use Terseq\Builders\Shared\BuilderParts\AppendAttributes;
 use Terseq\Builders\Shared\BuilderParts\ConsistentRead;
 use Terseq\Builders\Shared\BuilderParts\HasAttributes;
 use Terseq\Builders\Shared\BuilderParts\ProjectionExpression;
 use Terseq\Builders\Shared\BuilderParts\ReturnConsumedCapacity;
 use Terseq\Builders\Shared\Extends\HasCasters;
+use Terseq\Builders\Shared\Extends\RenderCondition;
 
 use function array_merge;
+use function implode;
 use function sprintf;
 
 class Query extends Builder
@@ -29,8 +32,9 @@ class Query extends Builder
     use ReturnConsumedCapacity;
 
     use HasCasters;
+    use RenderCondition;
 
-    protected ?SortKey $skExpression = null;
+    protected ?SortKeyCondition $sortKeyCondition = null;
     protected ?FilterExpression $filterExpression = null;
     protected ?int $limit = null;
     protected ?Select $select = null;
@@ -90,11 +94,9 @@ class Query extends Builder
     public function pk(mixed $value, ?string $attribute = null): static
     {
         $clone = clone $this;
-        $attribute = $attribute ?? $clone->table->getPartitionKey();
-        $attributeName = $clone->createAttribute($attribute);
 
-        $clone->pkAttribute = $attributeName;
-        $clone->pkValue = $clone->valuesStorage->createValue($attribute, $value);
+        $clone->pkAttribute = $attribute;
+        $clone->pkValue = $value;
 
         return $clone;
     }
@@ -104,14 +106,12 @@ class Query extends Builder
         $clone = clone $this;
 
         if ($value instanceof Closure) {
-            $clone->skExpression = $value(new SortKey($clone));
-            $this->attributes = array_merge($clone->getAttributes(), $clone->skExpression->getAttributes());
+            $clone->sortKeyCondition = $value(
+                new SortKeyCondition(),
+            );
         } else {
-            $attribute = $attribute ?? $clone->table->getSortKey();
-            $attributeName = $clone->createAttribute($attribute);
-
-            $clone->skAttribute = $attributeName;
-            $clone->skValue = $clone->valuesStorage->createValue($attribute, $value);
+            $clone->skAttribute = $attribute;
+            $clone->skValue = $value;
         }
 
         return $clone;
@@ -146,45 +146,46 @@ class Query extends Builder
 
     public function getQuery(): array
     {
-        $config = $this->createConfig();
+        $clone = clone $this;
+        $config = $clone->createConfig();
 
-        $config = $this->appendProjectionExpression($config);
-        $config = $this->appendConsistentRead($config);
-        $config = $this->appendReturnConsumedCapacity($config);
+        $config = $clone->appendProjectionExpression($config);
+        $config = $clone->appendConsistentRead($config);
+        $config = $clone->appendReturnConsumedCapacity($config);
 
-        if ($this->indexName) {
-            $config['IndexName'] = $this->indexName;
+        if ($clone->indexName) {
+            $config['IndexName'] = $clone->indexName;
         }
 
         if (
-            $this->pkAttribute === null
-            && $this->pkValue === null
+            $clone->pkAttribute === null
+            && $clone->pkValue === null
         ) {
             throw new BuilderException('Partition key is required for query operation.');
         }
 
-        $config = $this->prepareKeyConditionExpression($config);
+        $config = $clone->prepareKeyConditionExpression($config);
 
-        if ($this->filterExpression?->isEmpty() === false) {
-            $config['FilterExpression'] = $this->filterExpression->prepare();
+        if ($clone->filterExpression?->isEmpty() === false) {
+            $config['FilterExpression'] = $clone->filterExpression->prepare();
         }
 
-        $config = $this->appendAttributes($config);
+        $config = $clone->appendAttributes($config);
 
-        if ($this->scanIndexForward !== null) {
-            $config['ScanIndexForward'] = $this->scanIndexForward;
+        if ($clone->scanIndexForward !== null) {
+            $config['ScanIndexForward'] = $clone->scanIndexForward;
         }
 
-        if ($this->limit) {
-            $config['Limit'] = $this->limit;
+        if ($clone->limit) {
+            $config['Limit'] = $clone->limit;
         }
 
-        if ($this->exclusiveStartKey) {
-            $config['ExclusiveStartKey'] = $this->marshaler->marshalItem($this->exclusiveStartKey);
+        if ($clone->exclusiveStartKey) {
+            $config['ExclusiveStartKey'] = $clone->marshaler->marshalItem($clone->exclusiveStartKey);
         }
 
-        if ($this->select) {
-            $config['Select'] = $this->select->value;
+        if ($clone->select) {
+            $config['Select'] = $clone->select->value;
         }
 
         return $config;
@@ -192,29 +193,78 @@ class Query extends Builder
 
     protected function prepareKeyConditionExpression(array $config): array
     {
+        $expression = [];
+
         if ($this->pkValue) {
-            $config['KeyConditionExpression'] = sprintf(
+            $attribute = $this->getPartitionKey();
+            $value = $this->valuesStorage->createValue($attribute, $this->pkValue);
+
+            $expression[] = sprintf(
                 '%s = %s',
-                $this->pkAttribute,
-                $this->pkValue,
+                $this->createAttribute($attribute),
+                $value,
             );
         }
 
-        if ($this->skExpression?->isEmpty() === false) {
-            $config['KeyConditionExpression'] = sprintf(
-                '%s AND %s',
-                $config['KeyConditionExpression'],
-                $this->skExpression->prepare(),
+        if ($this->skValue) {
+            $attribute = $this->getSortKey();
+            $value = $this->valuesStorage->createValue($attribute, $this->skValue);
+
+            $expression[] = sprintf(
+                '%s = %s',
+                $this->createAttribute($attribute),
+                $value,
             );
-        } elseif ($this->skValue) {
-            $config['KeyConditionExpression'] = sprintf(
-                '%s AND %s = %s',
-                $config['KeyConditionExpression'],
-                $this->skAttribute,
-                $this->skValue,
-            );
+        } elseif ($this->sortKeyCondition) {
+            $condition = $this->sortKeyCondition;
+
+            [$attribute, $values, $operator] = $condition->getQueryData();
+
+            $attribute = $attribute ?? $this->getSortKey();
+            $attributeName = $this->createAttribute($attribute);
+            $preparedValues = [];
+
+            foreach ($values as $value) {
+                $preparedValues[] = $this->valuesStorage->createValue($attribute, $value);
+            }
+
+            $expression[] = $this->renderCondition($operator, $preparedValues, $attributeName);
         }
+
+        $config['KeyConditionExpression'] = implode(' AND ', $expression);
 
         return $config;
+    }
+
+    protected function getSortKey(): ?string
+    {
+        $attribute = $this->table->getKeysFromMemory()->sortKey;
+
+        if (
+            $this->indexName
+            && $secondaryKey = ($this->table->getGlobalSecondaryIndexMapFromMemory()[$this->indexName] ?? null)
+        ) {
+            $attribute = $secondaryKey->sortKey;
+        } elseif ($this->skAttribute) {
+            $attribute = $this->skAttribute;
+        }
+
+        return $attribute;
+    }
+
+    protected function getPartitionKey(): string
+    {
+        $attribute = $this->table->getKeysFromMemory()->partitionKey;
+
+        if (
+            $this->indexName
+            && $secondaryKey = ($this->table->getGlobalSecondaryIndexMapFromMemory()[$this->indexName] ?? null)
+        ) {
+            $attribute = $secondaryKey->partitionKey;
+        } elseif ($this->pkAttribute) {
+            $attribute = $this->pkAttribute;
+        }
+
+        return $attribute;
     }
 }

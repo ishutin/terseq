@@ -68,10 +68,7 @@ class BatchGet extends Builder
 
         $config['Keys'] = [];
 
-        $defaultKeys = [
-            $this->table->getPartitionKey(),
-            $this->table->getSortKey(),
-        ];
+        $defaultKeys = $this->table->getKeysFromMemory()->toArray();
 
         foreach ($this->values as $index => $attributes) {
             foreach ($attributes as $keyIndex => $value) {

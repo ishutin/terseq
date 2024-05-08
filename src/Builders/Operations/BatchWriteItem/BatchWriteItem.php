@@ -35,8 +35,8 @@ class BatchWriteItem extends Builder
         ];
 
         $clone->deleteItemsKeys[] = [
-            $pkAttribute ?? $table?->getPartitionKey(),
-            $skAttribute ?? $table?->getSortKey(),
+            $pkAttribute ?? $table?->getKeysFromMemory()->partitionKey,
+            $skAttribute ?? $table?->getKeysFromMemory()->sortKey,
         ];
 
         $clone->deleteTableNames[] = $table?->getTableName();
@@ -91,10 +91,7 @@ class BatchWriteItem extends Builder
             ];
         }
 
-        $defaultKeys = [
-            $this->table->getPartitionKey(),
-            $this->table->getSortKey(),
-        ];
+        $defaultKeys = $this->table->getKeysFromMemory()->toArray();
 
         foreach ($this->deleteItems as $index => $items) {
             $tableName = $this->deleteTableNames[$index] ?? $this->table->getTableName();
@@ -103,7 +100,7 @@ class BatchWriteItem extends Builder
                 $key = $this->deleteItemsKeys[$index][$itemIndex] ?? $defaultKeys[$itemIndex];
 
                 $config['RequestItems'][$tableName][$index]['DeleteRequest']['Key'][$key] = $this->marshaler->marshalValue(
-                    $value
+                    $value,
                 );
             }
         }

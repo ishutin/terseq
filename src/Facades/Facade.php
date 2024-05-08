@@ -36,6 +36,11 @@ abstract readonly class Facade
         );
     }
 
+    public function getRawQuery(Closure|Builder $builder): array
+    {
+        return $this->getBuilder($builder)->getQuery();
+    }
+
     abstract protected function createBuilder(): Builder;
 
     abstract protected function performQuery(Builder $builder): mixed;

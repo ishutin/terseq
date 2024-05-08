@@ -6,6 +6,7 @@ namespace Terseq\Builders\Operations;
 
 use Aws\DynamoDb\Marshaler;
 use Terseq\Builders\Exceptions\BuilderException;
+use Terseq\Builders\Keys;
 use Terseq\Builders\Shared\ValuesStorage;
 use Terseq\Builders\Table;
 use Terseq\Contracts\Builder\BuilderInterface;
@@ -47,6 +48,10 @@ abstract class Builder implements BuilderInterface
 
     public function table(TableInterface|string|array|null $table): static
     {
+        if ($this->table !== null) {
+            return $this;
+        }
+
         if ($table === null) {
             return $this;
         }
@@ -88,6 +93,13 @@ abstract class Builder implements BuilderInterface
                 {
                     return $this->tableName;
                 }
+
+                public function getKeys(): Keys
+                {
+                    return new Keys(
+                        partitionKey: 'Id',
+                    );
+                }
             };
         }
 
@@ -104,14 +116,14 @@ abstract class Builder implements BuilderInterface
                     );
                 }
 
-                public function getPartitionKey(): string
+                public function getKeys(): Keys
                 {
-                    return $this->table[1] ?? $this->table['pk'] ?? parent::getPartitionKey();
-                }
-
-                public function getSortKey(): string
-                {
-                    return $this->table[2] ?? $this->table['sk'] ?? parent::getSortKey();
+                    return new Keys(
+                        partitionKey: $this->table[1] ?? $this->table['pk'] ?? throw new BuilderException(
+                            'Partition key is required',
+                        ),
+                        sortKey: $this->table[2] ?? $this->table['sk'] ?? null,
+                    );
                 }
             };
         }
