@@ -7,7 +7,7 @@ namespace Terseq\Tests\Fixtures;
 use Terseq\Builders\Keys;
 use Terseq\Builders\Table;
 
-class BookTable extends Table
+class BooksTable extends Table
 {
     public function getTableName(): string
     {

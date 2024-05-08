@@ -118,7 +118,7 @@ class TransactWriteItems extends Builder
 
     public function getQuery(): array
     {
-        $config = $this->createConfig();
+        $config = $this->createConfig(withoutTable: true);
 
         $config = $this->appendReturnConsumedCapacity($config);
         $config = $this->appendReturnItemCollectionMetrics($config);

@@ -7,12 +7,13 @@ namespace Terseq\Tests\Builders\Operations\BatchWriteItem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
+use Terseq\Builders\Exceptions\BuilderException;
 use Terseq\Builders\Keys;
 use Terseq\Builders\Operations\BatchWriteItem\BatchWriteItem;
 use Terseq\Builders\Shared\Enums\ReturnConsumedCapacity;
 use Terseq\Builders\Shared\Enums\ReturnItemCollectionMetrics;
 use Terseq\Builders\Table;
-use Terseq\Tests\Fixtures\BookTable;
+use Terseq\Tests\Fixtures\BooksTable;
 
 
 #[CoversClass(BatchWriteItem::class)]
@@ -22,11 +23,10 @@ class BatchWriteItemTest extends TestCase
 {
     public function testFullQuery(): void
     {
-        $builder = (new BatchWriteItem(
-            table: new BookTable(),
-        ))
-            ->delete('book-id-for-delete')
-            ->deleteComposite('book-id', 'release-date')
+        $table = new BooksTable();
+        $builder = (new BatchWriteItem())
+            ->delete('book-id-for-delete', table: $table)
+            ->deleteComposite('book-id', 'release-date', table: $table)
             ->returnItemCollectionMetrics(ReturnItemCollectionMetrics::Size)
             ->returnConsumedCapacity(ReturnConsumedCapacity::Indexes)
             ->put([
@@ -34,68 +34,93 @@ class BatchWriteItemTest extends TestCase
                 'Title' => 'First Book',
                 'AuthorId' => 'author-id',
                 'ReleaseDate' => 'release-date',
-            ]);
+            ], table: $table);
 
-        $this->assertEquals([
-            'TableName' => 'Books',
-            'ReturnConsumedCapacity' => 'INDEXES',
-            'ReturnItemCollectionMetrics' => 'SIZE',
-            'RequestItems' =>
-                [
-                    'Books' =>
-                        [
+        $this->assertEquals(
+            [
+                'ReturnConsumedCapacity' => 'INDEXES',
+                'ReturnItemCollectionMetrics' => 'SIZE',
+                'RequestItems' =>
+                    [
+                        'Books' =>
                             [
-                                'PutRequest' =>
-                                    [
-                                        'Item' =>
-                                            [
-                                                'BookId' =>
-                                                    [
-                                                        'S' => 'first-book-id',
-                                                    ],
-                                                'Title' =>
-                                                    [
-                                                        'S' => 'First Book',
-                                                    ],
-                                                'AuthorId' =>
-                                                    [
-                                                        'S' => 'author-id',
-                                                    ],
-                                                'ReleaseDate' =>
-                                                    [
-                                                        'S' => 'release-date',
-                                                    ],
-                                            ],
-                                    ],
-                                'DeleteRequest' =>
-                                    [
-                                        'Key' =>
-                                            [
-                                                'BookId' =>
-                                                    [
-                                                        'S' => 'book-id-for-delete',
-                                                    ],
-                                            ],
-                                    ],
+                                [
+                                    'PutRequest' =>
+                                        [
+                                            'Item' =>
+                                                [
+                                                    'BookId' =>
+                                                        [
+                                                            'S' => 'first-book-id',
+                                                        ],
+                                                    'Title' =>
+                                                        [
+                                                            'S' => 'First Book',
+                                                        ],
+                                                    'AuthorId' =>
+                                                        [
+                                                            'S' => 'author-id',
+                                                        ],
+                                                    'ReleaseDate' =>
+                                                        [
+                                                            'S' => 'release-date',
+                                                        ],
+                                                ],
+                                        ],
+                                ],
+                                [
+                                    'DeleteRequest' =>
+                                        [
+                                            'Key' =>
+                                                [
+                                                    'BookId' =>
+                                                        [
+                                                            'S' => 'book-id-for-delete',
+                                                        ],
+                                                ],
+                                        ],
+                                ],
+                                [
+                                    'DeleteRequest' =>
+                                        [
+                                            'Key' =>
+                                                [
+                                                    'BookId' =>
+                                                        [
+                                                            'S' => 'book-id',
+                                                        ],
+                                                ],
+                                        ],
+                                ],
+                                [
+                                    'DeleteRequest' =>
+                                        [
+                                            'Key' =>
+                                                [
+                                                    'ReleaseDate' =>
+                                                        [
+                                                            'S' => 'release-date',
+                                                        ],
+                                                ],
+                                        ],
+                                ],
                             ],
-                            [
-                                'DeleteRequest' =>
-                                    [
-                                        'Key' =>
-                                            [
-                                                'BookId' =>
-                                                    [
-                                                        'S' => 'book-id',
-                                                    ],
-                                                'ReleaseDate' =>
-                                                    [
-                                                        'S' => 'release-date',
-                                                    ],
-                                            ],
-                                    ],
-                            ],
-                        ],
-                ],
-        ], $builder->getQuery());
+                    ],
+            ],
+            $builder->getQuery(),
+        );
+    }
+
+    public function testMore25Items(): void
+    {
+        $table = new BooksTable();
+        $builder = new BatchWriteItem();
+
+        for ($i = 0; $i < 30; $i++) {
+            $builder = $builder->delete('book-id-for-delete', table: $table);
+        }
+
+        $this->expectException(BuilderException::class);
+        $builder->getQuery();
     }
 }

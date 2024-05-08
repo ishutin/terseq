@@ -11,7 +11,7 @@ trait HasCasters
 {
     protected ?Caster $caster = null;
 
-    public function add(string $attribute, CasterInterface $caster): static
+    public function addCaster(string $attribute, CasterInterface $caster): static
     {
         $clone = clone $this;
         if ($clone->caster === null) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Terseq\Builders\Operations\BatchWriteItem;
 
+use Terseq\Builders\Exceptions\BuilderException;
 use Terseq\Builders\Operations\Builder;
 use Terseq\Builders\Shared\BuilderParts\ReturnConsumedCapacity;
 use Terseq\Builders\Shared\BuilderParts\ReturnItemCollectionMetrics;
@@ -77,21 +78,26 @@ class BatchWriteItem extends Builder
 
     public function getQuery(): array
     {
-        $config = $this->createConfig();
+        $config = $this->createConfig(withoutTable: true);
 
         $config = $this->appendReturnConsumedCapacity($config);
         $config = $this->appendReturnItemCollectionMetrics($config);
 
+        $requestItems = [];
+
+        $itemsCount = 0;
+
         foreach ($this->putItems as $index => $item) {
             $tableName = $this->putItemsKeys[$index] ?? $this->table->getTableName();
-            $config['RequestItems'][$tableName][] = [
+            $requestItems[$tableName][] = [
                 'PutRequest' => [
                     'Item' => $this->marshaler->marshalItem($item),
                 ],
             ];
+            $itemsCount++;
         }
 
-        $defaultKeys = $this->table->getKeysFromMemory()->toArray();
+        $defaultKeys = $this->table?->getKeysFromMemory()->toArray() ?? [];
 
         foreach ($this->deleteItems as $index => $items) {
             $tableName = $this->deleteTableNames[$index] ?? $this->table->getTableName();
@@ -99,11 +105,23 @@ class BatchWriteItem extends Builder
             foreach ($items as $itemIndex => $value) {
                 $key = $this->deleteItemsKeys[$index][$itemIndex] ?? $defaultKeys[$itemIndex];
 
-                $config['RequestItems'][$tableName][$index]['DeleteRequest']['Key'][$key] = $this->marshaler->marshalValue(
-                    $value,
-                );
+                $requestItems[$tableName][] = [
+                    'DeleteRequest' => [
+                        'Key' => [
+                            $key => $this->marshaler->marshalValue($value),
+                        ],
+                    ],
+                ];
+
+                $itemsCount++;
             }
         }
+
+        if ($itemsCount > 25) {
+            throw new BuilderException('You can only write up to 25 items at a time');
+        }
+
+        $config['RequestItems'] = $requestItems;
 
         return $config;
     }

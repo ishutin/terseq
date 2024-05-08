@@ -9,7 +9,6 @@ use Terseq\Builders\Exceptions\BuilderException;
 use Terseq\Builders\Operations\Builder;
 use Terseq\Builders\Operations\Query\Enums\Select;
 use Terseq\Builders\Operations\Query\Expressions\FilterExpression;
-use Terseq\Builders\Operations\Query\Expressions\SortKey;
 use Terseq\Builders\Operations\Query\Expressions\SortKeyCondition;
 use Terseq\Builders\Shared\BuilderParts\AppendAttributes;
 use Terseq\Builders\Shared\BuilderParts\ConsistentRead;

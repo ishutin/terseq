@@ -35,7 +35,7 @@ class BatchGetItem extends Builder
 
     public function getQuery(): array
     {
-        $config = $this->createConfig();
+        $config = $this->createConfig(withoutTable: true);
         $config = $this->appendReturnConsumedCapacity($config);
 
         foreach ($this->requestItems as $keyIndex => $item) {

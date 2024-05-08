@@ -12,7 +12,7 @@ use Terseq\Builders\Operations\BatchGetItem\BatchGetItem;
 use Terseq\Builders\Operations\BatchGetItem\Operations\BatchGet;
 use Terseq\Builders\Shared\Enums\ReturnConsumedCapacity;
 use Terseq\Builders\Table;
-use Terseq\Tests\Fixtures\BookTable;
+use Terseq\Tests\Fixtures\BooksTable;
 
 #[CoversClass(BatchGetItem::class)]
 #[CoversClass(BatchGet::class)]
@@ -22,9 +22,8 @@ final class BatchGetItemTest extends TestCase
 {
     public function testFullQuery(): void
     {
-        $builder = (new BatchGetItem(
-            table: new BookTable(),
-        ))
+        $builder = (new BatchGetItem())
+            ->table(new BooksTable())
             ->returnConsumedCapacity(ReturnConsumedCapacity::Total)
             ->get(fn (BatchGet $get) => $get
                 ->pk('first-book-id')
@@ -33,7 +32,6 @@ final class BatchGetItemTest extends TestCase
             );
 
         $this->assertEquals([
-            'TableName' => 'Books',
             'ReturnConsumedCapacity' => 'TOTAL',
             'RequestItems' => [
                 'Books' => [
