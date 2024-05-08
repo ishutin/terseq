@@ -25,9 +25,9 @@ composer require aiotu/terseq
 
 ## Usage
 
-#### Initialize
+### Initialize
 
-### Create client by AWS SDK and factory
+#### Create client by AWS SDK and factory
 
 ```php
 $client = new \Aws\DynamoDb\DynamoDbClient([
@@ -38,9 +38,9 @@ $client = new \Aws\DynamoDb\DynamoDbClient([
 $factory = new OperationFactory($client, new Marshaler());
 ```
 
-#### Use operations
+### Factory usage
 
-### GetItem
+#### Short syntax
 
 ```php
 use Terseq\Builders\Operations\GetItem\GetItem;
@@ -52,7 +52,62 @@ $factory->getItem()->dispatch(
 );
 ```
 
-### PutItem
+#### Use facade `makeBuilder` method
+
+```php
+use Terseq\Builders\Operations\GetItem\GetItem;
+
+$getItemFacade = $factory->getItem();
+
+$query = $getItemFacade->makeBuilder()
+    ->table(['Books', 'BookId'])
+    ->pk('super-cool-id')
+
+$getItemFacade->dispatch($query);
+```
+
+#### Create builder manually (not recommended)
+In most cases, you should use the Facade or short syntax. Facade automatically creates a builder for you and correctly resolves all dependencies.
+
+But if you want to create a builder manually, you can do it like this:
+
+```php
+use Terseq\Builders\Operations\GetItem\GetItem;
+$builder = (new GetItem())
+    ->table(['Books', 'BookId'])
+    ->pk('super-cool-id');
+    
+$factory->getItem()->dispatch($builder);
+```
+
+Important: if you use this method, and you use single-table design by library, in most cases DO NOT USE Builder `getQuery` method, because it will throw an exception. 
+If you want to see the query, use `getQuery` method from the Facade.
+
+Example:
+```php
+use Terseq\Builders\Operations\GetItem\GetItem;
+$factory->getItem()->getQuery(
+    static fn (GetItem $builder) => $builder
+        ->pk('super-cool-id'),
+);
+```
+
+
+### Operations
+
+#### GetItem
+
+```php
+use Terseq\Builders\Operations\GetItem\GetItem;
+
+$factory->getItem()->dispatch(
+    static fn (GetItem $builder) => $builder
+        ->table(['Books', 'BookId'])
+        ->pk('super-cool-id'),
+);
+```
+
+#### PutItem
 
 ```php
 use Terseq\Builders\Operations\PutItem\PutItem;
@@ -68,7 +123,7 @@ $factory->putItem()->dispatch(
 );
 ```
 
-### UpdateItem
+#### UpdateItem
 
 ```php
 use Terseq\Builders\Operations\UpdateItem\UpdateItem;
@@ -82,7 +137,7 @@ $factory->updateItem()->dispatch(
 );
 ```
 
-### DeleteItem
+#### DeleteItem
 
 ```php
 use Terseq\Builders\Operations\DeleteItem\DeleteItem;
@@ -94,7 +149,7 @@ factory->deleteItem()->dispatch(
 );
 ```
 
-### Query
+#### Query
 
 ```php
 use Terseq\Builders\Operations\Query\Query;
@@ -107,7 +162,7 @@ $result = $factory->query()->dispatch(
 ); 
 ```
 
-### TransactGetItems
+#### TransactGetItems
 
 ```php
 use Terseq\Builders\Operations\TransactGetItems\TransactGetItems;
@@ -125,7 +180,7 @@ $factory->transactGetItems()->dispatch(
 );
 ```
 
-### TransactWriteItems
+#### TransactWriteItems
 
 ```php
 use Terseq\Builders\Operations\TransactWriteItems\TransactWriteItems;
@@ -162,7 +217,7 @@ $factory->transactWriteItems()->dispatch(
 );
 ```
 
-### BatchGetItem
+#### BatchGetItem
 
 ```php
 use Terseq\Builders\Operations\BatchGetItem\BatchGetItem;
@@ -186,7 +241,7 @@ $factory->batchGetItem()->dispatch(
 );
 ```
 
-### BatchWriteItem
+#### BatchWriteItem
 
 ```php
 use Terseq\Builders\Operations\BatchWriteItem\BatchWriteItem;

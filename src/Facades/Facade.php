@@ -25,20 +25,20 @@ abstract readonly class Facade
     public function dispatch(Closure|Builder $builder): mixed
     {
         return $this->performQuery(
-            $this->getBuilder($builder),
+            $this->makeBuilder($builder),
         );
     }
 
     public function async(Closure|Builder $builder): PromiseInterface
     {
         return $this->performQueryAsync(
-            $this->getBuilder($builder),
+            $this->makeBuilder($builder),
         );
     }
 
     public function getRawQuery(Closure|Builder $builder): array
     {
-        return $this->getBuilder($builder)->getQuery();
+        return $this->makeBuilder($builder)->getQuery();
     }
 
     abstract protected function createBuilder(): Builder;
@@ -47,9 +47,11 @@ abstract readonly class Facade
 
     abstract protected function performQueryAsync(Builder $builder): PromiseInterface;
 
-    protected function getBuilder(Closure|Builder $builder): Builder
+    public function makeBuilder(Closure|Builder|null $builder): Builder
     {
-        if (is_callable($builder)) {
+        if ($builder === null) {
+            $builder = $this->createBuilder();
+        } elseif (is_callable($builder)) {
             $builderInstance = $this->createBuilder();
 
             if ($this->defaultTable) {
