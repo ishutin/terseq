@@ -1,23 +1,25 @@
 # Terseq: AWS DynamoDB Query Builder
 
-## Capabilities
+This document provides a comprehensive guide on how to utilize the Terseq library to build and execute queries on AWS DynamoDB using the AWS SDK for PHP.
 
-* Build a DynamoDB Query for next operations:
-    * GetItem
-    * PutItem
-    * UpdateItem
-    * DeleteItem
-    * Query
-    * TransactGetItems
-    * TransactWriteItems
-    * BatchGetItem
-    * BatchWriteItem
+## Features
 
-* Call DynamoDB API with the query built
+Terseq supports building queries for the following DynamoDB operations:
+- GetItem
+- PutItem
+- UpdateItem
+- DeleteItem
+- Query
+- TransactGetItems
+- TransactWriteItems
+- BatchGetItem
+- BatchWriteItem
 
 Package uses AWS SDK for PHP v3
 
 ## Installation
+
+To install the Terseq package, run the following command in your project directory using Composer:
 
 ```bash
 composer require aiotu/terseq
