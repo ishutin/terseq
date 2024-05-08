@@ -20,7 +20,7 @@ use Terseq\Facades\UpdateItemFacade;
 
 class DatabaseManager implements DatabaseManagerInterface
 {
-    protected array $facadesSingletons = [];
+    protected array $instances = [];
 
     public function __construct(
         protected readonly DynamoDbClient $client,
@@ -31,124 +31,118 @@ class DatabaseManager implements DatabaseManagerInterface
 
     public function query(): QueryFacade
     {
-        if (isset($this->facadesSingletons[QueryFacade::class])) {
-            $this->facadesSingletons[QueryFacade::class] = new QueryFacade(
+        if (!isset($this->instances[QueryFacade::class])) {
+            $this->instances[QueryFacade::class] = new QueryFacade(
                 client: $this->client,
                 marshaler: $this->marshaler,
                 defaultTable: $this->singleTable,
             );
         }
 
-        return $this->facadesSingletons[QueryFacade::class];
+        return $this->instances[QueryFacade::class];
     }
 
     public function getItem(): GetItemFacade
     {
-        if (isset($this->facadesSingletons[GetItemFacade::class])) {
-            $this->facadesSingletons[GetItemFacade::class] = new GetItemFacade(
+        if (!isset($this->instances[GetItemFacade::class])) {
+            $this->instances[GetItemFacade::class] = new GetItemFacade(
                 client: $this->client,
                 marshaler: $this->marshaler,
                 defaultTable: $this->singleTable,
             );
         }
 
-        return $this->facadesSingletons[GetItemFacade::class];
+        return $this->instances[GetItemFacade::class];
     }
 
     public function deleteItem(): DeleteItemFacade
     {
-//        return new DeleteItemFacade(
-//            client: $this->client,
-//            marshaler: $this->marshaler,
-//            defaultTable: $this->singleTable,
-//        );
-
-        if (isset($this->facadesSingletons[DeleteItemFacade::class])) {
-            $this->facadesSingletons[DeleteItemFacade::class] = new DeleteItemFacade(
+        if (!isset($this->instances[DeleteItemFacade::class])) {
+            $this->instances[DeleteItemFacade::class] = new DeleteItemFacade(
                 client: $this->client,
                 marshaler: $this->marshaler,
                 defaultTable: $this->singleTable,
             );
         }
 
-        return $this->facadesSingletons[DeleteItemFacade::class];
+        return $this->instances[DeleteItemFacade::class];
     }
 
     public function updateItem(): UpdateItemFacade
     {
-        if (isset($this->facadesSingletons[UpdateItemFacade::class])) {
-            $this->facadesSingletons[UpdateItemFacade::class] = new UpdateItemFacade(
+        if (!isset($this->instances[UpdateItemFacade::class])) {
+            $this->instances[UpdateItemFacade::class] = new UpdateItemFacade(
                 client: $this->client,
                 marshaler: $this->marshaler,
                 defaultTable: $this->singleTable,
             );
         }
 
-        return $this->facadesSingletons[UpdateItemFacade::class];
+        return $this->instances[UpdateItemFacade::class];
     }
 
     public function putItem(): PutItemFacade
     {
-        if (isset($this->facadesSingletons[PutItemFacade::class])) {
-            $this->facadesSingletons[PutItemFacade::class] = new PutItemFacade(
+        if (!isset($this->instances[PutItemFacade::class])) {
+            $this->instances[PutItemFacade::class] = new PutItemFacade(
                 client: $this->client,
                 marshaler: $this->marshaler,
                 defaultTable: $this->singleTable,
             );
         }
 
-        return $this->facadesSingletons[PutItemFacade::class];
+        return $this->instances[PutItemFacade::class];
     }
 
     public function transactGetItems(): TransactGetItemsFacade
     {
-        if (isset($this->facadesSingletons[TransactGetItemsFacade::class])) {
-            $this->facadesSingletons[TransactGetItemsFacade::class] = new TransactGetItemsFacade(
+        if (!isset($this->instances[TransactGetItemsFacade::class])) {
+            $this->instances[TransactGetItemsFacade::class] = new TransactGetItemsFacade(
                 client: $this->client,
                 marshaler: $this->marshaler,
                 defaultTable: $this->singleTable,
             );
         }
 
-        return $this->facadesSingletons[TransactGetItemsFacade::class];
+        return $this->instances[TransactGetItemsFacade::class];
     }
 
     public function transactWriteItems(): TransactWriteItemsFacade
     {
-        if (isset($this->facadesSingletons[TransactWriteItemsFacade::class])) {
-            $this->facadesSingletons[TransactWriteItemsFacade::class] = new TransactWriteItemsFacade(
+        if (!isset($this->instances[TransactWriteItemsFacade::class])) {
+            $this->instances[TransactWriteItemsFacade::class] = new TransactWriteItemsFacade(
                 client: $this->client,
                 marshaler: $this->marshaler,
                 defaultTable: $this->singleTable,
             );
         }
 
-        return $this->facadesSingletons[TransactWriteItemsFacade::class];
+        return $this->instances[TransactWriteItemsFacade::class];
     }
 
     public function batchGetItem(): BatchGetItemFacade
     {
-        if (isset($this->facadesSingletons[BatchGetItemFacade::class])) {
-            $this->facadesSingletons[BatchGetItemFacade::class] = new BatchGetItemFacade(
+        if (!isset($this->instances[BatchGetItemFacade::class])) {
+            $this->instances[BatchGetItemFacade::class] = new BatchGetItemFacade(
                 client: $this->client,
                 marshaler: $this->marshaler,
                 defaultTable: $this->singleTable,
             );
         }
 
-        return $this->facadesSingletons[BatchGetItemFacade::class];
+        return $this->instances[BatchGetItemFacade::class];
     }
 
     public function batchWriteItem(): BatchWriteItemFacade
     {
-        if (isset($this->facadesSingletons[BatchWriteItemFacade::class])) {
-            $this->facadesSingletons[BatchWriteItemFacade::class] = new BatchWriteItemFacade(
+        if (!isset($this->instances[BatchWriteItemFacade::class])) {
+            $this->instances[BatchWriteItemFacade::class] = new BatchWriteItemFacade(
                 client: $this->client,
                 marshaler: $this->marshaler,
                 defaultTable: $this->singleTable,
             );
         }
 
-        return $this->facadesSingletons[BatchWriteItemFacade::class];
+        return $this->instances[BatchWriteItemFacade::class];
     }
 }
