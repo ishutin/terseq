@@ -31,7 +31,7 @@ composer require aiotu/terseq
 
 ### Initialize
 
-#### Create client by AWS SDK and factory
+#### Create client by AWS SDK and DatabaseManager
 
 ```php
 $client = new \Aws\DynamoDb\DynamoDbClient([
@@ -39,17 +39,17 @@ $client = new \Aws\DynamoDb\DynamoDbClient([
     'version' => 'latest',
 ]);
 
-$factory = new OperationFactory($client, new Marshaler());
+$manager = new \Terseq\DatabaseManager($client, new Marshaler());
 ```
 
-### Factory usage
+### DatabaseManager usage
 
 #### Short syntax
 
 ```php
 use Terseq\Builders\Operations\GetItem\GetItem;
 
-$factory->getItem()->dispatch(
+$manager->getItem()->dispatch(
     static fn (GetItem $builder) => $builder
         ->table(['Books', 'BookId'])
         ->pk('super-cool-id'),
@@ -61,7 +61,7 @@ $factory->getItem()->dispatch(
 ```php
 use Terseq\Builders\Operations\GetItem\GetItem;
 
-$getItemFacade = $factory->getItem();
+$getItemFacade = $manager->getItem();
 
 $query = $getItemFacade->makeBuilder()
     ->table(['Books', 'BookId'])
@@ -83,7 +83,7 @@ $builder = (new GetItem())
     ->table(['Books', 'BookId'])
     ->pk('super-cool-id');
     
-$factory->getItem()->dispatch($builder);
+$manager->getItem()->dispatch($builder);
 ```
 
 Important: if you use this method, and you use single-table design by library, in most cases DO NOT USE
@@ -94,7 +94,7 @@ Example:
 
 ```php
 use Terseq\Builders\Operations\GetItem\GetItem;
-$factory->getItem()->getQuery(
+$manager->getItem()->getQuery(
     static fn (GetItem $builder) => $builder
         ->pk('super-cool-id'),
 );
@@ -107,7 +107,7 @@ $factory->getItem()->getQuery(
 ```php
 use Terseq\Builders\Operations\GetItem\GetItem;
 
-$factory->getItem()->dispatch(
+$manager->getItem()->dispatch(
     static fn (GetItem $builder) => $builder
         ->table(['Books', 'BookId'])
         ->pk('super-cool-id'),
@@ -119,7 +119,7 @@ $factory->getItem()->dispatch(
 ```php
 use Terseq\Builders\Operations\PutItem\PutItem;
 
-$factory->putItem()->dispatch(
+$manager->putItem()->dispatch(
     static fn (PutItem $builder) => $builder
         ->table(['Books', 'BookId'])
         ->item([
@@ -135,7 +135,7 @@ $factory->putItem()->dispatch(
 ```php
 use Terseq\Builders\Operations\UpdateItem\UpdateItem;
 
-$factory->updateItem()->dispatch(
+$manager->updateItem()->dispatch(
     static fn (UpdateItem $builder) => $builder
         ->table(['Books', 'BookId'])
         ->pk('super-cool-id')
@@ -149,7 +149,7 @@ $factory->updateItem()->dispatch(
 ```php
 use Terseq\Builders\Operations\DeleteItem\DeleteItem;
 
-factory->deleteItem()->dispatch(
+$manager->deleteItem()->dispatch(
     static fn (DeleteItem $builder) => $builder
         ->table(['Books', 'BookId'])
         ->pk('super-cool-id'),
@@ -161,7 +161,7 @@ factory->deleteItem()->dispatch(
 ```php
 use Terseq\Builders\Operations\Query\Query;
    
-$result = $factory->query()->dispatch(
+$result = $manager->query()->dispatch(
     static fn (Query $builder) => $builder
         ->table(['Books', 'BookId'])
         ->pk('super-cool-id')
@@ -175,7 +175,7 @@ $result = $factory->query()->dispatch(
 use Terseq\Builders\Operations\TransactGetItems\TransactGetItems;
 use \Terseq\Builders\Operations\TransactGetItems\Operations\Get;
 
-$factory->transactGetItems()->dispatch(
+$manager->transactGetItems()->dispatch(
     static fn (TransactGetItems $builder) => $builder
         ->get(
         [
@@ -195,7 +195,7 @@ use \Terseq\Builders\Operations\TransactWriteItems\Operations\Put;
 use \Terseq\Builders\Operations\TransactWriteItems\Operations\Update;
 use \Terseq\Builders\Operations\TransactWriteItems\Operations\Delete;
 
-$factory->transactWriteItems()->dispatch(
+$manager->transactWriteItems()->dispatch(
     static fn (TransactWriteItems $builder) => $builder
         ->put(
             [
@@ -229,7 +229,7 @@ $factory->transactWriteItems()->dispatch(
 ```php
 use Terseq\Builders\Operations\BatchGetItem\BatchGetItem;
 
-$factory->batchGetItem()->dispatch(
+$manager->batchGetItem()->dispatch(
     static fn (BatchGetItem $builder) => $builder
         ->get(
             [
@@ -253,7 +253,7 @@ $factory->batchGetItem()->dispatch(
 ```php
 use Terseq\Builders\Operations\BatchWriteItem\BatchWriteItem;
 
-$factory->batchWriteItem()->dispatch(
+$manager->batchWriteItem()->dispatch(
     static fn (BatchWriteItem $builder) => $builder
         ->put(
             [
@@ -336,7 +336,7 @@ class MyTable extends \Terseq\Builders\Table
 
 $table = new MyTable();
 
-$factory->batchGetItem()->dispatch(
+$manager->batchGetItem()->dispatch(
     static fn (BatchGetItem $builder) => $builder
         ->get(
             [
@@ -387,7 +387,7 @@ supports [single-table design](https://aws.amazon.com/blogs/compute/creating-a-s
 ### Example of using single-table design
 
 ```php
-$factory = new OperationFactory(
+$manager = new \Terseq\DatabaseManager(
     client: $client, 
     marshaler: new Marshaler(),
     singleTable: new class extends \Terseq\Builders\Table {
@@ -413,13 +413,13 @@ use Terseq\Builders\Operations\BatchWriteItem\BatchWriteItem;
 use Terseq\Builders\Operations\GetItem\GetItem;
 
 // Query
-$factory->getItem()->dispatch(
+$manager->getItem()->dispatch(
     static fn (GetItem $builder) => $builder
         ->table(['Books', 'BookId'])
         ->pk('super-cool-id'),
 );
 
-$factory->batchWriteItem()->dispatch(
+$manager->batchWriteItem()->dispatch(
     static fn (BatchWriteItem $builder) => $builder
         ->put(
             [
@@ -451,11 +451,11 @@ use Terseq\Builders\Operations\BatchWriteItem\BatchWriteItem;
 use Terseq\Builders\Operations\GetItem\GetItem;
 
 // Query
-$factory->getItem()->dispatch(
+$manager->getItem()->dispatch(
     static fn (GetItem $builder) => $builder->pk('super-cool-id'),
 );
 
-$factory->batchWriteItem()->dispatch(
+$manager->batchWriteItem()->dispatch(
     static fn (BatchWriteItem $builder) => $builder
         ->put(
             [

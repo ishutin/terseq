@@ -14,7 +14,7 @@ use Terseq\Facades\TransactGetItemsFacade;
 use Terseq\Facades\TransactWriteItemsFacade;
 use Terseq\Facades\UpdateItemFacade;
 
-interface OperationFactoryInterface
+interface DatabaseManagerInterface
 {
     public function query(): QueryFacade;
 
