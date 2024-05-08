@@ -56,7 +56,7 @@ class BatchWriteItem extends Builder
         ];
 
         $clone->deleteItemsKeys[] = [
-            $attribute ?? $table?->getPartitionKey(),
+            $attribute ?? $table?->getKeys()->partitionKey,
         ];
 
         $clone->deleteTableNames[] = $table?->getTableName();
