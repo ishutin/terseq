@@ -129,4 +129,214 @@ final class TransactWriteItemsTest extends TestCase
             ],
         ], $builder->getQuery());
     }
+
+    public function testMultiTables(): void
+    {
+        $table1 = ['Table1', 'BookId', 'ReleaseDate'];
+        $table2 = ['Table2', 'BookId', 'ReleaseDate'];
+        $table3 = ['Table3', 'BookId', 'ReleaseDate'];
+        $table4 = ['Table4', 'BookId', 'ReleaseDate'];
+
+        $builder = (new TransactWriteItems())
+            ->conditionCheck(
+                fn (ConditionCheck $conditionCheck) => $conditionCheck->table($table1)
+                    ->pk('book-id-for-delete'),
+            )
+            ->put(
+                fn (Put $put) => $put->table($table2)
+                    ->item([
+                        'BookId' => 'book-id-for-delete',
+                        'ReleaseDate' => 'release-date',
+                        'Price' => 20,
+                        'Color' => 'Red',
+                    ]),
+            )
+            ->delete(
+                fn (Delete $delete) => $delete->table($table3)
+                    ->composite('book-id-for-delete', 'release-date'),
+            )
+            ->update(
+                fn (Update $update) => $update->table($table4)
+                    ->pk('book-id-for-delete')
+                    ->set('Price', 20)
+                    ->set('Color', 'Red')
+                    ->delete('IsHidden')
+                    ->remove('NotForSale'),
+            );
+
+        $this->assertEquals([
+            'TransactItems' => [
+                [
+                    'Put' => [
+                        'TableName' => 'Table2',
+                        'Item' => [
+                            'BookId' => [
+                                'S' => 'book-id-for-delete',
+                            ],
+                            'ReleaseDate' => [
+                                'S' => 'release-date',
+                            ],
+                            'Price' => [
+                                'N' => '20',
+                            ],
+                            'Color' => [
+                                'S' => 'Red',
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'Delete' => [
+                        'TableName' => 'Table3',
+                        'Key' => [
+                            'BookId' => [
+                                'S' => 'book-id-for-delete',
+                            ],
+                            'ReleaseDate' => [
+                                'S' => 'release-date',
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'Update' => [
+                        'TableName' => 'Table4',
+                        'Key' => [
+                            'BookId' => [
+                                'S' => 'book-id-for-delete',
+                            ],
+                        ],
+                        'UpdateExpression' => 'SET #Price = :price_0, #Color = :color_0 DELETE #IsHidden REMOVE #NotForSale',
+                        'ExpressionAttributeNames' => [
+                            '#Price' => 'Price',
+                            '#Color' => 'Color',
+                            '#IsHidden' => 'IsHidden',
+                            '#NotForSale' => 'NotForSale',
+                        ],
+                        'ExpressionAttributeValues' => [
+                            ':price_0' => [
+                                'N' => '20',
+                            ],
+                            ':color_0' => [
+                                'S' => 'Red',
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'ConditionCheck' => [
+                        'TableName' => 'Table1',
+                        'Key' => [
+                            'BookId' => [
+                                'S' => 'book-id-for-delete',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], $builder->getQuery());
+    }
+
+    public function testSingleTable(): void
+    {
+        $table = new BooksTable();
+        $builder = (new TransactWriteItems(table: $table))
+            ->conditionCheck(
+                fn (ConditionCheck $conditionCheck) => $conditionCheck
+                    ->pk('book-id-for-delete'),
+            )
+            ->put(
+                fn (Put $put) => $put
+                    ->item([
+                        'BookId' => 'book-id-for-delete',
+                        'ReleaseDate' => 'release-date',
+                        'Price' => 20,
+                        'Color' => 'Red',
+                    ]),
+            )
+            ->delete(
+                fn (Delete $delete) => $delete
+                    ->composite('book-id-for-delete', 'release-date'),
+            )
+            ->update(
+                fn (Update $update) => $update
+                    ->pk('book-id-for-delete')
+                    ->set('Price', 20)
+                    ->set('Color', 'Red')
+                    ->delete('IsHidden')
+                    ->remove('NotForSale'),
+            );
+
+        $this->assertEquals([
+            'TransactItems' => [
+                [
+                    'Put' => [
+                        'TableName' => 'Books',
+                        'Item' => [
+                            'BookId' => [
+                                'S' => 'book-id-for-delete',
+                            ],
+                            'ReleaseDate' => [
+                                'S' => 'release-date',
+                            ],
+                            'Price' => [
+                                'N' => '20',
+                            ],
+                            'Color' => [
+                                'S' => 'Red',
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'Delete' => [
+                        'TableName' => 'Books',
+                        'Key' => [
+                            'BookId' => [
+                                'S' => 'book-id-for-delete',
+                            ],
+                            'ReleaseDate' => [
+                                'S' => 'release-date',
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'Update' => [
+                        'TableName' => 'Books',
+                        'Key' => [
+                            'BookId' => [
+                                'S' => 'book-id-for-delete',
+                            ],
+                        ],
+                        'UpdateExpression' => 'SET #Price = :price_0, #Color = :color_0 DELETE #IsHidden REMOVE #NotForSale',
+                        'ExpressionAttributeNames' => [
+                            '#Price' => 'Price',
+                            '#Color' => 'Color',
+                            '#IsHidden' => 'IsHidden',
+                            '#NotForSale' => 'NotForSale',
+                        ],
+                        'ExpressionAttributeValues' => [
+                            ':price_0' => [
+                                'N' => '20',
+                            ],
+                            ':color_0' => [
+                                'S' => 'Red',
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'ConditionCheck' => [
+                        'TableName' => 'Books',
+                        'Key' => [
+                            'BookId' => [
+                                'S' => 'book-id-for-delete',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], $builder->getQuery());
+    }
 }
