@@ -15,11 +15,10 @@ use Terseq\Builders\Shared\Enums\ReturnItemCollectionMetrics;
 use Terseq\Builders\Table;
 use Terseq\Tests\Fixtures\BooksTable;
 
-
 #[CoversClass(BatchWriteItem::class)]
 #[UsesClass(Table::class)]
 #[UsesClass(Keys::class)]
-class BatchWriteItemTest extends TestCase
+final class BatchWriteItemTest extends TestCase
 {
     public function testFullQuery(): void
     {

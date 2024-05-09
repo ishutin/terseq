@@ -25,7 +25,8 @@ final class BatchGetItemTest extends TestCase
         $builder = (new BatchGetItem())
             ->table(new BooksTable())
             ->returnConsumedCapacity(ReturnConsumedCapacity::Total)
-            ->get(fn (BatchGet $get) => $get
+            ->get(
+                fn (BatchGet $get) => $get
                 ->pk('first-book-id')
                 ->pk('second-book-id')
                 ->composite('book-id', 'release-date'),

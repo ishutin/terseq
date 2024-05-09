@@ -17,7 +17,7 @@ use Terseq\Tests\Fixtures\BooksTable;
 #[UsesClass(Keys::class)]
 #[UsesClass(Table::class)]
 #[UsesClass(ValuesStorage::class)]
-class GetItemTest extends TestCase
+final class GetItemTest extends TestCase
 {
     public function testFullQuery(): void
     {
