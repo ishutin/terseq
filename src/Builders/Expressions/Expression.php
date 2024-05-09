@@ -8,11 +8,13 @@ use Terseq\Builders\Expressions\Condition\Condition;
 use Terseq\Builders\Expressions\Condition\ConditionItem;
 use Terseq\Builders\Operations\Query\Enums\ComparisonOperator;
 use Terseq\Builders\Shared\BuilderParts\HasAttributes;
+use Terseq\Builders\Shared\Extends\When;
 use Terseq\Builders\Shared\ValuesStorage;
 
 abstract class Expression
 {
     use HasAttributes;
+    use When;
 
     /**
      * @var Condition[]

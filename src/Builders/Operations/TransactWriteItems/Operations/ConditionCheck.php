@@ -19,8 +19,6 @@ class ConditionCheck extends Builder
     use ReturnValuesOnConditionCheckFailure;
     use ConditionExpression;
 
-    // todo: ConditionExpression
-
     public function getQuery(): array
     {
         $config = $this->createConfig();

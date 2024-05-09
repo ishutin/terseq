@@ -7,6 +7,7 @@ namespace Terseq\Builders\Operations;
 use Aws\DynamoDb\Marshaler;
 use Terseq\Builders\Exceptions\BuilderException;
 use Terseq\Builders\Keys;
+use Terseq\Builders\Shared\Extends\When;
 use Terseq\Builders\Shared\ValuesStorage;
 use Terseq\Builders\Table;
 use Terseq\Contracts\Builder\BuilderInterface;
@@ -17,6 +18,8 @@ use function is_string;
 
 abstract class Builder implements BuilderInterface
 {
+    use When;
+
     public readonly ValuesStorage $valuesStorage;
 
     public ?TableInterface $table = null;
@@ -38,6 +41,7 @@ abstract class Builder implements BuilderInterface
 
         $this->valuesStorage = new ValuesStorage();
     }
+
 
     public function table(TableInterface|string|array|null $table): static
     {

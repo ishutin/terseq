@@ -6,6 +6,7 @@ namespace Terseq\Builders\Operations\TransactWriteItems\Operations;
 
 use Terseq\Builders\Operations\Builder;
 use Terseq\Builders\Shared\BuilderParts\AppendAttributes;
+use Terseq\Builders\Shared\BuilderParts\ConditionExpression;
 use Terseq\Builders\Shared\BuilderParts\HasAttributes;
 use Terseq\Builders\Shared\BuilderParts\PutItem;
 use Terseq\Builders\Shared\BuilderParts\ReturnValuesOnConditionCheckFailure;
@@ -16,8 +17,7 @@ class Put extends Builder
     use AppendAttributes;
     use ReturnValuesOnConditionCheckFailure;
     use PutItem;
-
-    // todo: ConditionExpression
+    use ConditionExpression;
 
     public function getQuery(): array
     {
@@ -25,6 +25,7 @@ class Put extends Builder
 
         $config = $this->appendReturnValuesOnConditionCheckFailure($config);
         $config = $this->appendItem($config);
+        $config = $this->appendConditionExpression($config);
 
         return $this->appendAttributes($config);
     }

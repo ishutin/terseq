@@ -6,6 +6,7 @@ namespace Terseq\Builders\Operations\TransactWriteItems\Operations;
 
 use Terseq\Builders\Operations\Builder;
 use Terseq\Builders\Shared\BuilderParts\AppendAttributes;
+use Terseq\Builders\Shared\BuilderParts\ConditionExpression;
 use Terseq\Builders\Shared\BuilderParts\HasAttributes;
 use Terseq\Builders\Shared\BuilderParts\HasOperationByKey;
 use Terseq\Builders\Shared\BuilderParts\ReturnValuesOnConditionCheckFailure;
@@ -18,8 +19,7 @@ class Update extends Builder
     use ReturnValuesOnConditionCheckFailure;
     use UpdateExpression;
     use HasOperationByKey;
-
-    // todo: ConditionExpression
+    use ConditionExpression;
 
     public function getQuery(): array
     {
@@ -29,6 +29,7 @@ class Update extends Builder
         $config = $this->appendUpdateExpression($config);
         $config = $this->appendAttributes($config);
         $config = $this->appendKey($config);
+        $config = $this->appendConditionExpression($config);
 
         return $this->appendAttributes($config);
     }
