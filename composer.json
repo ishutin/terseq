@@ -3,7 +3,6 @@
     "description": "Query Builder for AWS DynamoDB",
     "type": "library",
     "license": "MIT",
-    "version": "0.0.1",
     "scripts": {
         "analyse": "phpstan --level=5 --memory-limit=1G analyse src tests",
         "coverage": "XDEBUG_MODE=coverage phpunit ./tests --coverage-html ./coverage --color",
