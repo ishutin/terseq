@@ -6,10 +6,9 @@ namespace Terseq\Builders\Operations\Query;
 
 use Closure;
 use Terseq\Builders\Exceptions\BuilderException;
+use Terseq\Builders\Expressions\FilterExpression;
 use Terseq\Builders\Operations\Builder;
 use Terseq\Builders\Operations\Query\Enums\Select;
-use Terseq\Builders\Operations\Query\Expressions\FilterExpression;
-use Terseq\Builders\Operations\Query\Expressions\SortKeyCondition;
 use Terseq\Builders\Shared\BuilderParts\AppendAttributes;
 use Terseq\Builders\Shared\BuilderParts\ConsistentRead;
 use Terseq\Builders\Shared\BuilderParts\HasAttributes;
@@ -119,7 +118,7 @@ class Query extends Builder
     public function filter(Closure $closure): static
     {
         $clone = clone $this;
-        $clone->filterExpression = new FilterExpression($clone);
+        $clone->filterExpression = new FilterExpression($clone->valuesStorage);
         $clone->attributes = array_merge($clone->getAttributes(), $clone->filterExpression->getAttributes());
 
         $closure($clone->filterExpression);

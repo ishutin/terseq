@@ -18,5 +18,6 @@ enum ComparisonOperator: string
     case ATTRIBUTE_TYPE = 'attribute_type';
     case CONTAINS = 'contains';
     case BEGINS_WITH = 'begins_with';
+    case SIZE = 'size';
     case IN = 'IN';
 }

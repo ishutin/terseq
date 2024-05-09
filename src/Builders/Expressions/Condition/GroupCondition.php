@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Terseq\Builders\Operations\Query\Expressions\Condition;
+namespace Terseq\Builders\Expressions\Condition;
 
 class GroupCondition extends Condition
 {

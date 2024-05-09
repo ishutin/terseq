@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Terseq\Builders\Operations\Query\Expressions;
+namespace Terseq\Builders\Expressions;
 
 use Closure;
+use Terseq\Builders\Expressions\Condition\ConditionItem;
+use Terseq\Builders\Expressions\Condition\GroupCondition;
 use Terseq\Builders\Operations\Query\Enums\ComparisonOperator;
-use Terseq\Builders\Operations\Query\Expressions\Condition\ConditionItem;
-use Terseq\Builders\Operations\Query\Expressions\Condition\GroupCondition;
 
 use function array_map;
 use function array_merge;
@@ -16,7 +16,7 @@ class FilterExpression extends Expression
 {
     public function group(Closure $closure, string $type = 'AND'): static
     {
-        $where = new FilterExpression($this->query);
+        $where = new FilterExpression($this->valuesStorage);
 
         $closure($where);
 
@@ -29,8 +29,6 @@ class FilterExpression extends Expression
 
         return $this;
     }
-
-    // Move code from 5 first traits to here
 
     public function equal(string $attribute, mixed $value, string $type = 'AND', bool $not = false): static
     {
@@ -97,8 +95,8 @@ class FilterExpression extends Expression
         $this->conditions[] = new ConditionItem(
             attribute: $this->createAttribute($attribute),
             values: [
-                $this->query->valuesStorage->createValue($attribute, $from),
-                $this->query->valuesStorage->createValue($attribute, $to),
+                $this->valuesStorage->createValue($attribute, $from),
+                $this->valuesStorage->createValue($attribute, $to),
             ],
             operator: ComparisonOperator::BETWEEN,
             type: $type,
@@ -113,7 +111,7 @@ class FilterExpression extends Expression
         $this->conditions[] = new ConditionItem(
             attribute: $this->createAttribute($attribute),
             values: [
-                $this->query->valuesStorage->createValue($attribute, $value),
+                $this->valuesStorage->createValue($attribute, $value),
             ],
             operator: ComparisonOperator::BEGINS_WITH,
             type: $type,
@@ -128,7 +126,7 @@ class FilterExpression extends Expression
         $this->conditions[] = new ConditionItem(
             attribute: $this->createAttribute($attribute),
             values: array_map(function (mixed $value) use ($attribute) {
-                return $this->query->valuesStorage->createValue($attribute, $value);
+                return $this->valuesStorage->createValue($attribute, $value);
             }, $in),
             operator: ComparisonOperator::IN,
             type: $type,
@@ -180,7 +178,7 @@ class FilterExpression extends Expression
         $this->conditions[] = new ConditionItem(
             attribute: $this->createAttribute($attribute),
             values: [
-                $this->query->valuesStorage->createValue($attribute, $value),
+                $this->valuesStorage->createValue($attribute, $value),
             ],
             operator: ComparisonOperator::CONTAINS,
             type: $type,
@@ -189,6 +187,4 @@ class FilterExpression extends Expression
 
         return $this;
     }
-
-
 }

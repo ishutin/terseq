@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Terseq\Builders\Operations\Query\Expressions;
+namespace Terseq\Builders\Expressions;
 
+use Terseq\Builders\Expressions\Condition\Condition;
+use Terseq\Builders\Expressions\Condition\ConditionItem;
 use Terseq\Builders\Operations\Query\Enums\ComparisonOperator;
-use Terseq\Builders\Operations\Query\Expressions\Condition\Condition;
-use Terseq\Builders\Operations\Query\Expressions\Condition\ConditionItem;
-use Terseq\Builders\Operations\Query\Query;
 use Terseq\Builders\Shared\BuilderParts\HasAttributes;
+use Terseq\Builders\Shared\ValuesStorage;
 
 abstract class Expression
 {
@@ -20,7 +20,7 @@ abstract class Expression
     protected array $conditions = [];
 
     public function __construct(
-        protected readonly Query $query,
+        protected readonly ValuesStorage $valuesStorage,
     ) {
     }
 
@@ -52,12 +52,10 @@ abstract class Expression
         ?string $type = 'AND',
         ?bool $not = false,
     ): static {
-        $this->modifyAttributeAndValue($attribute, $value);
-
         $condition = new ConditionItem(
             attribute: $this->createAttribute($attribute),
             values: [
-                $this->query->valuesStorage->createValue($attribute, $value),
+                $this->valuesStorage->createValue($attribute, $value),
             ],
             operator: $operator,
             type: $type,

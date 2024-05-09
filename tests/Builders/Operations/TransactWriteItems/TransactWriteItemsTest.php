@@ -7,12 +7,16 @@ namespace Terseq\Tests\Builders\Operations\TransactWriteItems;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
+use Terseq\Builders\Expressions\Condition\Condition;
+use Terseq\Builders\Expressions\Condition\ConditionItem;
+use Terseq\Builders\Expressions\ConditionExpression;
 use Terseq\Builders\Keys;
 use Terseq\Builders\Operations\TransactWriteItems\Operations\ConditionCheck;
 use Terseq\Builders\Operations\TransactWriteItems\Operations\Delete;
 use Terseq\Builders\Operations\TransactWriteItems\Operations\Put;
 use Terseq\Builders\Operations\TransactWriteItems\Operations\Update;
 use Terseq\Builders\Operations\TransactWriteItems\TransactWriteItems;
+use Terseq\Builders\Shared\Extends\RenderCondition;
 use Terseq\Builders\Shared\ValuesStorage;
 use Terseq\Builders\Table;
 use Terseq\Tests\Fixtures\BooksTable;
@@ -25,6 +29,10 @@ use Terseq\Tests\Fixtures\BooksTable;
 #[CoversClass(Delete::class)]
 #[CoversClass(Update::class)]
 #[CoversClass(Put::class)]
+#[CoversClass(ConditionExpression::class)]
+#[UsesClass(Condition::class)]
+#[UsesClass(ConditionItem::class)]
+#[UsesClass(RenderCondition::class)]
 final class TransactWriteItemsTest extends TestCase
 {
     public function testFullQuery(): void
@@ -33,28 +41,34 @@ final class TransactWriteItemsTest extends TestCase
         $builder = (new TransactWriteItems())
             ->conditionCheck(
                 fn (ConditionCheck $conditionCheck) => $conditionCheck->table($table)
-                ->pk('book-id-for-delete'),
+                    ->conditionExpression(
+                        static fn (ConditionExpression $condition) => $condition
+                        ->between('Price', 10, 20)
+                        ->attributeExists('Color')
+                        ->size('Author', '>=', 5),
+                    )
+                    ->pk('book-id-for-delete'),
             )
             ->put(
                 fn (Put $put) => $put->table($table)
-                ->item([
-                    'BookId' => 'book-id-for-delete',
-                    'ReleaseDate' => 'release-date',
-                    'Price' => 20,
-                    'Color' => 'Red',
-                ]),
+                    ->item([
+                        'BookId' => 'book-id-for-delete',
+                        'ReleaseDate' => 'release-date',
+                        'Price' => 20,
+                        'Color' => 'Red',
+                    ]),
             )
             ->delete(
                 fn (Delete $delete) => $delete->table($table)
-                ->composite('book-id-for-delete', 'release-date'),
+                    ->composite('book-id-for-delete', 'release-date'),
             )
             ->update(
                 fn (Update $update) => $update->table($table)
-                ->pk('book-id-for-delete')
-                ->set('Price', 20)
-                ->set('Color', 'Red')
-                ->delete('IsHidden')
-                ->remove('NotForSale'),
+                    ->pk('book-id-for-delete')
+                    ->set('Price', 20)
+                    ->set('Color', 'Red')
+                    ->delete('IsHidden')
+                    ->remove('NotForSale'),
             );
 
         $this->assertEquals([
@@ -122,6 +136,23 @@ final class TransactWriteItemsTest extends TestCase
                         'Key' => [
                             'BookId' => [
                                 'S' => 'book-id-for-delete',
+                            ],
+                        ],
+                        'ConditionExpression' => '#Price BETWEEN :price_0 AND :price_1 AND attribute_exists(#Color) AND size(#Author) >= :author_0',
+                        "ExpressionAttributeNames" => [
+                            "#Price" => "Price",
+                            "#Color" => "Color",
+                            "#Author" => "Author",
+                        ],
+                        "ExpressionAttributeValues" => [
+                            ":price_0" => [
+                                "N" => "10",
+                            ],
+                            ":price_1" => [
+                                "N" => "20",
+                            ],
+                            ":author_0" => [
+                                "N" => "5",
                             ],
                         ],
                     ],

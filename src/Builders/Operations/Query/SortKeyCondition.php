@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Terseq\Builders\Operations\Query\Expressions;
+namespace Terseq\Builders\Operations\Query;
 
 use Terseq\Builders\Operations\Query\Enums\ComparisonOperator;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Terseq\Builders\Operations\Query\Expressions\Condition;
+namespace Terseq\Builders\Expressions\Condition;
 
 use Terseq\Builders\Operations\Query\Enums\ComparisonOperator;
 use Terseq\Builders\Shared\Extends\RenderCondition;
@@ -17,6 +17,7 @@ class ConditionItem extends Condition
         protected readonly ComparisonOperator $operator,
         protected string $type = 'AND',
         protected bool $isNotCondition = false,
+        protected readonly ?ComparisonOperator $additionalOperator = null,
     ) {
     }
 
@@ -25,7 +26,12 @@ class ConditionItem extends Condition
         return sprintf(
             '%s%s',
             $this->getStartCondition($isFirst),
-            $this->renderCondition($this->operator, $this->values, $this->attribute),
+            $this->renderCondition(
+                $this->operator,
+                $this->values,
+                $this->attribute,
+                $this->additionalOperator,
+            ),
         );
     }
 }

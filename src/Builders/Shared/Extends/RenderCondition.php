@@ -9,8 +9,12 @@ use Terseq\Builders\Operations\Query\Enums\ComparisonOperator;
 
 trait RenderCondition
 {
-    public function renderCondition(ComparisonOperator $operator, array $values, string $attribute): string
-    {
+    public function renderCondition(
+        ComparisonOperator $operator,
+        array $values,
+        string $attribute,
+        ?ComparisonOperator $additionalOperator = null,
+    ): string {
         switch ($operator) {
             case ComparisonOperator::EQ:
             case ComparisonOperator::NE:
@@ -20,6 +24,9 @@ trait RenderCondition
             case ComparisonOperator::GT:
                 if (empty($values)) {
                     throw new BuilderException('Values cannot be empty');
+                }
+                if ($additionalOperator === ComparisonOperator::SIZE) {
+                    $attribute = sprintf('size(%s)', $attribute);
                 }
 
                 return sprintf('%s %s %s', $attribute, $operator->value, $values[0]);
