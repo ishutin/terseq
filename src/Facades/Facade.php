@@ -47,7 +47,7 @@ abstract readonly class Facade
 
     abstract protected function performQueryAsync(Builder $builder): PromiseInterface;
 
-    public function makeBuilder(Closure|Builder|null $builder): Builder
+    public function makeBuilder(Closure|Builder|null $builder = null): Builder
     {
         if ($builder === null) {
             $builder = $this->createBuilder();
