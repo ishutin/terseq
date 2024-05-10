@@ -12,7 +12,10 @@ trait AppendAttributes
             $config['ExpressionAttributeNames'] = $this->attributes;
 
             if ($withValues) {
-                $config['ExpressionAttributeValues'] = $this->marshaler->marshalItem($this->valuesStorage->getValues());
+                $config['ExpressionAttributeValues'] = $this->marshaler
+                    ->marshalItem(
+                        $this->getValuesStorage()->getValues(),
+                    );
             }
         }
 

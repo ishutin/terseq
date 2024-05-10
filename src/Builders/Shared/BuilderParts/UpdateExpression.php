@@ -19,7 +19,7 @@ trait UpdateExpression
     {
         $clone = clone $this;
 
-        $clone->set[$clone->createAttribute($attribute)] = $clone->valuesStorage->createValue($attribute, $value);
+        $clone->set[$clone->createAttribute($attribute)] = $clone->getValuesStorage()->createValue($attribute, $value);
 
         return $clone;
     }
@@ -38,7 +38,7 @@ trait UpdateExpression
         $clone->set[$attributeName] = sprintf(
             'if_not_exists(%s, %s)',
             $expressionAttributeName,
-            $clone->valuesStorage->createValue($attribute, $value),
+            $clone->getValuesStorage()->createValue($attribute, $value),
         );
 
         return $clone;
@@ -58,7 +58,7 @@ trait UpdateExpression
         $clone->set[$attributeName] = sprintf(
             'list_append(%s, %s)',
             $expressionAttributeName,
-            $clone->valuesStorage->createValue($attribute, $value),
+            $clone->getValuesStorage()->createValue($attribute, $value),
         );
 
         return $clone;
@@ -68,7 +68,7 @@ trait UpdateExpression
     {
         $clone = clone $this;
 
-        $clone->add[$clone->createAttribute($attribute)] = $clone->valuesStorage->createValue($attribute, $value);
+        $clone->add[$clone->createAttribute($attribute)] = $clone->getValuesStorage()->createValue($attribute, $value);
 
         return $clone;
     }

@@ -4,33 +4,26 @@ declare(strict_types=1);
 
 namespace Terseq\Contracts;
 
-use Terseq\Facades\BatchGetItemFacade;
-use Terseq\Facades\BatchWriteItemFacade;
-use Terseq\Facades\DeleteItemFacade;
-use Terseq\Facades\GetItemFacade;
-use Terseq\Facades\PutItemFacade;
-use Terseq\Facades\QueryFacade;
-use Terseq\Facades\TransactGetItemsFacade;
-use Terseq\Facades\TransactWriteItemsFacade;
-use Terseq\Facades\UpdateItemFacade;
+use Terseq\Essentials;
+use Terseq\Essentials\DeleteItem;
 
 interface DatabaseManagerInterface
 {
-    public function query(): QueryFacade;
+    public function query(): Essentials\Query;
 
-    public function getItem(): GetItemFacade;
+    public function getITem(): Essentials\GetItem;
 
-    public function deleteItem(): DeleteItemFacade;
+    public function deleteItem(): DeleteItem;
 
-    public function updateItem(): UpdateItemFacade;
+    public function updateItem(): Essentials\UpdateItem;
 
-    public function putItem(): PutItemFacade;
+    public function putItem(): Essentials\PutItem;
 
-    public function transactGetItems(): TransactGetItemsFacade;
+    public function transactGetItems(): Essentials\TransactGetItems;
 
-    public function transactWriteItems(): TransactWriteItemsFacade;
+    public function transactWriteItems(): Essentials\TransactWriteItems;
 
-    public function batchGetItem(): BatchGetItemFacade;
+    public function batchGetItem(): Essentials\BatchGetItem;
 
-    public function batchWriteItem(): BatchWriteItemFacade;
+    public function batchWriteItem(): Essentials\BatchWriteItem;
 }

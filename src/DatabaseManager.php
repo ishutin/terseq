@@ -8,19 +8,12 @@ use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Marshaler;
 use Terseq\Contracts\Builder\TableInterface;
 use Terseq\Contracts\DatabaseManagerInterface;
-use Terseq\Facades\BatchGetItemFacade;
-use Terseq\Facades\BatchWriteItemFacade;
-use Terseq\Facades\DeleteItemFacade;
-use Terseq\Facades\GetItemFacade;
-use Terseq\Facades\PutItemFacade;
-use Terseq\Facades\QueryFacade;
-use Terseq\Facades\TransactGetItemsFacade;
-use Terseq\Facades\TransactWriteItemsFacade;
-use Terseq\Facades\UpdateItemFacade;
+use Terseq\Dispatchers\Dispatcher;
+use Terseq\Essentials\DeleteItem;
 
 class DatabaseManager implements DatabaseManagerInterface
 {
-    protected array $instances = [];
+    protected array $dispatcherInstances = [];
 
     public function __construct(
         protected readonly DynamoDbClient $client,
@@ -29,120 +22,93 @@ class DatabaseManager implements DatabaseManagerInterface
     ) {
     }
 
-    public function query(): QueryFacade
+    public function query(): Essentials\Query
     {
-        if (!isset($this->instances[QueryFacade::class])) {
-            $this->instances[QueryFacade::class] = new QueryFacade(
-                client: $this->client,
-                marshaler: $this->marshaler,
-                defaultTable: $this->singleTable,
-            );
-        }
-
-        return $this->instances[QueryFacade::class];
+        return (new Essentials\Query(
+            table: $this->singleTable,
+            marshaler: $this->marshaler,
+        ))->setDispatcher($this->getDispatcher(Dispatchers\Query::class));
     }
 
-    public function getItem(): GetItemFacade
+    public function getITem(): Essentials\GetItem
     {
-        if (!isset($this->instances[GetItemFacade::class])) {
-            $this->instances[GetItemFacade::class] = new GetItemFacade(
-                client: $this->client,
-                marshaler: $this->marshaler,
-                defaultTable: $this->singleTable,
-            );
-        }
-
-        return $this->instances[GetItemFacade::class];
+        return (new Essentials\GetItem(
+            table: $this->singleTable,
+            marshaler: $this->marshaler,
+        ))->setDispatcher($this->getDispatcher(Dispatchers\GetItem::class));
     }
 
-    public function deleteItem(): DeleteItemFacade
+    public function deleteItem(): DeleteItem
     {
-        if (!isset($this->instances[DeleteItemFacade::class])) {
-            $this->instances[DeleteItemFacade::class] = new DeleteItemFacade(
-                client: $this->client,
-                marshaler: $this->marshaler,
-                defaultTable: $this->singleTable,
-            );
-        }
-
-        return $this->instances[DeleteItemFacade::class];
+        return (new Essentials\DeleteItem(
+            table: $this->singleTable,
+            marshaler: $this->marshaler,
+        ))->setDispatcher($this->getDispatcher(Dispatchers\DeleteItem::class));
     }
 
-    public function updateItem(): UpdateItemFacade
+    public function updateItem(): Essentials\UpdateItem
     {
-        if (!isset($this->instances[UpdateItemFacade::class])) {
-            $this->instances[UpdateItemFacade::class] = new UpdateItemFacade(
-                client: $this->client,
-                marshaler: $this->marshaler,
-                defaultTable: $this->singleTable,
-            );
-        }
-
-        return $this->instances[UpdateItemFacade::class];
+        return (new Essentials\UpdateItem(
+            table: $this->singleTable,
+            marshaler: $this->marshaler,
+        ))->setDispatcher($this->getDispatcher(Dispatchers\UpdateItem::class));
     }
 
-    public function putItem(): PutItemFacade
+    public function putItem(): Essentials\PutItem
     {
-        if (!isset($this->instances[PutItemFacade::class])) {
-            $this->instances[PutItemFacade::class] = new PutItemFacade(
-                client: $this->client,
-                marshaler: $this->marshaler,
-                defaultTable: $this->singleTable,
-            );
-        }
-
-        return $this->instances[PutItemFacade::class];
+        return (new Essentials\PutItem(
+            table: $this->singleTable,
+            marshaler: $this->marshaler,
+        ))->setDispatcher($this->getDispatcher(Dispatchers\PutItem::class));
     }
 
-    public function transactGetItems(): TransactGetItemsFacade
+    public function transactGetItems(): Essentials\TransactGetItems
     {
-        if (!isset($this->instances[TransactGetItemsFacade::class])) {
-            $this->instances[TransactGetItemsFacade::class] = new TransactGetItemsFacade(
-                client: $this->client,
-                marshaler: $this->marshaler,
-                defaultTable: $this->singleTable,
-            );
-        }
-
-        return $this->instances[TransactGetItemsFacade::class];
+        return (new Essentials\TransactGetItems(
+            table: $this->singleTable,
+            marshaler: $this->marshaler,
+        ))->setDispatcher($this->getDispatcher(Dispatchers\TransactGetItems::class));
     }
 
-    public function transactWriteItems(): TransactWriteItemsFacade
+    public function transactWriteItems(): Essentials\TransactWriteItems
     {
-        if (!isset($this->instances[TransactWriteItemsFacade::class])) {
-            $this->instances[TransactWriteItemsFacade::class] = new TransactWriteItemsFacade(
-                client: $this->client,
-                marshaler: $this->marshaler,
-                defaultTable: $this->singleTable,
-            );
-        }
-
-        return $this->instances[TransactWriteItemsFacade::class];
+        return (new Essentials\TransactWriteItems(
+            table: $this->singleTable,
+            marshaler: $this->marshaler,
+        ))->setDispatcher($this->getDispatcher(Dispatchers\TransactWriteItems::class));
     }
 
-    public function batchGetItem(): BatchGetItemFacade
+    public function batchGetItem(): Essentials\BatchGetItem
     {
-        if (!isset($this->instances[BatchGetItemFacade::class])) {
-            $this->instances[BatchGetItemFacade::class] = new BatchGetItemFacade(
-                client: $this->client,
-                marshaler: $this->marshaler,
-                defaultTable: $this->singleTable,
-            );
-        }
-
-        return $this->instances[BatchGetItemFacade::class];
+        return (new Essentials\BatchGetItem(
+            table: $this->singleTable,
+            marshaler: $this->marshaler,
+        ))->setDispatcher($this->getDispatcher(Dispatchers\BatchGetItem::class));
     }
 
-    public function batchWriteItem(): BatchWriteItemFacade
+    public function batchWriteItem(): Essentials\BatchWriteItem
     {
-        if (!isset($this->instances[BatchWriteItemFacade::class])) {
-            $this->instances[BatchWriteItemFacade::class] = new BatchWriteItemFacade(
+        return (new Essentials\BatchWriteItem(
+            table: $this->singleTable,
+            marshaler: $this->marshaler,
+        ))->setDispatcher($this->getDispatcher(Dispatchers\BatchWriteItem::class));
+    }
+
+    /**
+     * @template T
+     * @param class-string<T> $className
+     * @return T & Dispatcher
+     */
+    protected function getDispatcher(string $className): Dispatcher
+    {
+        if (!isset($this->dispatcherInstances[$className])) {
+            $this->dispatcherInstances[$className] = new $className(
                 client: $this->client,
                 marshaler: $this->marshaler,
                 defaultTable: $this->singleTable,
             );
         }
 
-        return $this->instances[BatchWriteItemFacade::class];
+        return $this->dispatcherInstances[$className];
     }
 }

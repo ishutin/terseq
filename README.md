@@ -44,60 +44,13 @@ $manager = new \Terseq\DatabaseManager($client, new Marshaler());
 
 ### DatabaseManager usage
 
-#### Short syntax
-
 ```php
-use Terseq\Builders\Operations\GetItem\GetItem;
+use Terseq\Builders\GetItem;
 
-$manager->getItem()->dispatch(
-    static fn (GetItem $builder) => $builder
-        ->table(['Books', 'BookId'])
-        ->pk('super-cool-id'),
-);
-```
-
-#### Use facade `makeBuilder` method
-
-```php
-use Terseq\Builders\Operations\GetItem\GetItem;
-
-$getItemFacade = $manager->getItem();
-
-$query = $getItemFacade->makeBuilder()
+$manager->getItem()
     ->table(['Books', 'BookId'])
     ->pk('super-cool-id')
-
-$getItemFacade->dispatch($query);
-```
-
-#### Create builder manually (not recommended)
-
-In most cases, you should use the Facade or short syntax. Facade automatically creates a builder for you and correctly
-resolves all dependencies.
-
-But if you want to create a builder manually, you can do it like this:
-
-```php
-use Terseq\Builders\Operations\GetItem\GetItem;
-$builder = (new GetItem())
-    ->table(['Books', 'BookId'])
-    ->pk('super-cool-id');
-    
-$manager->getItem()->dispatch($builder);
-```
-
-Important: if you use this method, and you use single-table design by library, in most cases DO NOT USE
-Builder `getQuery` method, because it will throw an exception.
-If you want to see the query, use `getQuery` method from the Facade.
-
-Example:
-
-```php
-use Terseq\Builders\Operations\GetItem\GetItem;
-$manager->getItem()->getQuery(
-    static fn (GetItem $builder) => $builder
-        ->pk('super-cool-id'),
-);
+    ->dispatch();
 ```
 
 ### Operations
@@ -105,177 +58,164 @@ $manager->getItem()->getQuery(
 #### GetItem
 
 ```php
-use Terseq\Builders\Operations\GetItem\GetItem;
+use Terseq\Builders\GetItem;
 
-$manager->getItem()->dispatch(
-    static fn (GetItem $builder) => $builder
-        ->table(['Books', 'BookId'])
-        ->pk('super-cool-id'),
+$manager->getItem()
+    ->table(['Books', 'BookId'])
+    ->pk('super-cool-id')
+    ->dispatch();
 );
 ```
 
 #### PutItem
 
 ```php
-use Terseq\Builders\Operations\PutItem\PutItem;
+use Terseq\Builders\PutItem;
 
-$manager->putItem()->dispatch(
-    static fn (PutItem $builder) => $builder
-        ->table(['Books', 'BookId'])
-        ->item([
-            'BookId' => 'super-cool-id',
-            'Title' => 'Super Cool Book',
-            'Author' => 'Super Cool Author',
-        ]),
-);
+$manager->putItem()
+    ->table(['Books', 'BookId'])
+    ->item([
+        'BookId' => 'super-cool-id',
+        'Title' => 'Super Cool Book',
+        'Author' => 'Super Cool Author',
+    ])
+    ->dispatch();
 ```
 
 #### UpdateItem
 
 ```php
-use Terseq\Builders\Operations\UpdateItem\UpdateItem;
+use Terseq\Builders\UpdateItem;
 
-$manager->updateItem()->dispatch(
-    static fn (UpdateItem $builder) => $builder
-        ->table(['Books', 'BookId'])
-        ->pk('super-cool-id')
-        ->set('Title', 'Super Cool Book Updated')
-        ->set('Author', 'Super Cool Author Updated'),
-);
+$manager->updateItem()
+    ->table(['Books', 'BookId'])
+    ->pk('super-cool-id')
+    ->set('Title', 'Super Cool Book Updated')
+    ->set('Author', 'Super Cool Author Updated')
+    ->dispatch();
 ```
 
 #### DeleteItem
 
 ```php
-use Terseq\Builders\Operations\DeleteItem\DeleteItem;
+use Terseq\Builders\DeleteItem;
 
-$manager->deleteItem()->dispatch(
-    static fn (DeleteItem $builder) => $builder
-        ->table(['Books', 'BookId'])
-        ->pk('super-cool-id'),
-);
+$manager->deleteItem()
+    ->table(['Books', 'BookId'])
+    ->pk('super-cool-id')
+    ->dispatch();
 ```
 
 #### Query
 
 ```php
-use Terseq\Builders\Operations\Query\Query;
+use Terseq\Builders\Query;
    
-$result = $manager->query()->dispatch(
-    static fn (Query $builder) => $builder
-        ->table(['Books', 'BookId'])
-        ->pk('super-cool-id')
-        ->consistentRead(),
-); 
+$result = $manager->query()
+    ->table(['Books', 'BookId'])
+    ->pk('super-cool-id')
+    ->consistentRead()
+    ->disaptch();
 ```
 
 #### TransactGetItems
 
 ```php
-use Terseq\Builders\Operations\TransactGetItems\TransactGetItems;
-use \Terseq\Builders\Operations\TransactGetItems\Operations\Get;
+use Terseq\Builders\Operations\TransactGetItems\Operations\Get;
 
-$manager->transactGetItems()->dispatch(
-    static fn (TransactGetItems $builder) => $builder
-        ->get(
-        [
-            static fn (Get $get) => $get->pk('super-cool-id1'),
-            static fn (Get $get) => $get->pk('super-cool-id2'),
-        ], 
-        table: ['Books', 'BookId']
-    ),
-);
+$manager->transactGetItems()
+    ->get(
+            [
+                static fn (Get $get) => $get->pk('super-cool-id1'),
+                static fn (Get $get) => $get->pk('super-cool-id2'),
+            ], 
+            table: ['Books', 'BookId'],
+        )
+    ->dispatch();
 ```
 
 #### TransactWriteItems
 
 ```php
-use Terseq\Builders\Operations\TransactWriteItems\TransactWriteItems;
-use \Terseq\Builders\Operations\TransactWriteItems\Operations\Put;
-use \Terseq\Builders\Operations\TransactWriteItems\Operations\Update;
-use \Terseq\Builders\Operations\TransactWriteItems\Operations\Delete;
+use Terseq\Builders\Operations\TransactWriteItems\Operations\Delete;use Terseq\Builders\Operations\TransactWriteItems\Operations\Put;use Terseq\Builders\Operations\TransactWriteItems\Operations\Update;
 
-$manager->transactWriteItems()->dispatch(
-    static fn (TransactWriteItems $builder) => $builder
-        ->put(
-            [
-                static fn (Put $put) => $put->item([
-                    'BookId' => 'super-book1',
-                    'Author' => 'Unknown',
-                ]),
-                static fn (Put $put) => $put->item([
-                    'BookId' => 'super-book-2',
-                    'Author' => 'Incognito',
-                ]),
-            ],
-            table: ['Books', 'BookId']
-        )
-        ->update(
-            static fn (Update $update) => $update
-                ->pk('super-book-3')
-                ->set('Author', 'Incognito'),
-            table: ['Books', 'BookId'],
-        )
-        ->delete(
-            static fn (Delete $delete) => $delete
-                ->pk('super-book-4'),
-            table: ['Books', 'BookId'],
-        ),
-);
+$manager->transactWriteItems()
+    ->put(
+        [
+            fn (Put $put) => $put->item([
+                'BookId' => 'super-book1',
+                'Author' => 'Unknown',
+            ]),
+            fn (Put $put) => $put->item([
+                'BookId' => 'super-book-2',
+                'Author' => 'Incognito',
+            ]),
+        ],
+        table: ['Books', 'BookId'],
+    )
+    ->update(
+        fn (Update $update) => $update
+            ->pk('super-book-3')
+            ->set('Author', 'Incognito'),
+        table: ['Books', 'BookId'],
+    )
+    ->delete(
+        fn (Delete $delete) => $delete->pk('super-book-4'),
+        table: ['Books', 'BookId'],
+    )
+    ->dispatch();
 ```
 
 #### BatchGetItem
 
 ```php
-use Terseq\Builders\Operations\BatchGetItem\BatchGetItem;
 
-$manager->batchGetItem()->dispatch(
-    static fn (BatchGetItem $builder) => $builder
-        ->get(
-            [
-                'BookId' => 'super-book-1',
-                'Author' => 'Unknown',
-            ],
-            table: ['Books', 'BookId'],
-        )
-        ->get(
-            [
-                'BookId' => 'super-book-2',
-                'Author' => 'Incognito',
-            ],
-            table: ['Books', 'BookId'],
-        ),
-);
+
+$manager->batchGetItem()
+    ->get(
+        [
+            'BookId' => 'super-book-1',
+            'Author' => 'Unknown',
+        ],
+        table: ['Books', 'BookId'],
+    )
+    ->get(
+        [
+            'BookId' => 'super-book-2',
+            'Author' => 'Incognito',
+        ],
+        table: ['Books', 'BookId'],
+    )
+    ->dispatch();
 ```
 
 #### BatchWriteItem
 
 ```php
-use Terseq\Builders\Operations\BatchWriteItem\BatchWriteItem;
+use Terseq\Builders\BatchWriteItem;
 
-$manager->batchWriteItem()->dispatch(
-    static fn (BatchWriteItem $builder) => $builder
-        ->put(
-            [
-                'BookId' => 'super-book-1',
-                'Author' => 'Unknown',
-            ],
-            table: ['Books', 'BookId'],
-        )
-        ->put(
-            [
-                'BookId' => 'super-book-2',
-                'Author' => 'Incognito',
-            ],
-            table: ['Books', 'BookId'],
-        )
-        ->delete(
-            [
-                'BookId' => 'super-book-3',
-            ],
-            table: ['Books', 'BookId'],
-        ),
-);       
+$manager->batchWriteItem()
+    ->put(
+        [
+            'BookId' => 'super-book-1',
+            'Author' => 'Unknown',
+        ],
+        table: ['Books', 'BookId'],
+    )
+    ->put(
+        [
+            'BookId' => 'super-book-2',
+            'Author' => 'Incognito',
+        ],
+        table: ['Books', 'BookId'],
+    )
+    ->delete(
+        [
+            'BookId' => 'super-book-3',
+        ],
+        table: ['Books', 'BookId'],
+    )
+    ->dispatch();
 ```
 
 ## Table name and keys
@@ -319,7 +259,7 @@ new DeleteItem(table: 'TableName'); // Sort key by default is null, partition ke
 ### Example of passing as object
 
 ```php
-use Terseq\Builders\Operations\BatchGetItem\BatchGetItem;
+use Terseq\Builders\BatchGetItem;
 
 class MyTable extends \Terseq\Builders\Table 
 {
@@ -406,73 +346,29 @@ $manager = new \Terseq\DatabaseManager(
 
 That's all! Now you can build queries without passing table name and keys.
 
-#### Before
+#### Usage
 
 ```php
-use Terseq\Builders\Operations\BatchWriteItem\BatchWriteItem;
-use Terseq\Builders\Operations\GetItem\GetItem;
-
 // Query
-$manager->getItem()->dispatch(
-    static fn (GetItem $builder) => $builder
-        ->table(['Books', 'BookId'])
-        ->pk('super-cool-id'),
-);
+$manager->getItem()->pk('super-cool-id')->disaptch();
 
-$manager->batchWriteItem()->dispatch(
-    static fn (BatchWriteItem $builder) => $builder
-        ->put(
-            [
-                'BookId' => 'super-book-1',
-                'Author' => 'Unknown',
-            ],
-            table: ['Books', 'BookId'],
-        )
-        ->put(
-            [
-                'BookId' => 'super-book-2',
-                'Author' => 'Incognito',
-            ],
-            table: ['Books', 'BookId'],
-        )
-        ->delete(
-            [
-                'BookId' => 'super-book-3',
-            ],
-            table: ['Books', 'BookId'],
-        ),
-);
-```
-
-#### After
-
-```php
-use Terseq\Builders\Operations\BatchWriteItem\BatchWriteItem;
-use Terseq\Builders\Operations\GetItem\GetItem;
-
-// Query
-$manager->getItem()->dispatch(
-    static fn (GetItem $builder) => $builder->pk('super-cool-id'),
-);
-
-$manager->batchWriteItem()->dispatch(
-    static fn (BatchWriteItem $builder) => $builder
-        ->put(
-            [
-                'BookId' => 'super-book-1',
-                'Author' => 'Unknown',
-            ],
-        )
-        ->put(
-            [
-                'BookId' => 'super-book-2',
-                'Author' => 'Incognito',
-            ],
-        )
-        ->delete(
-            [
-                'BookId' => 'super-book-3',
-            ],
-        ),
-);
+$manager->batchWriteItem()
+    ->put(
+        [
+            'BookId' => 'super-book-1',
+            'Author' => 'Unknown',
+        ],
+    )
+    ->put(
+        [
+            'BookId' => 'super-book-2',
+            'Author' => 'Incognito',
+        ],
+    )
+    ->delete(
+        [
+            'BookId' => 'super-book-3',
+        ],
+    )
+    ->dispatch();
 ```

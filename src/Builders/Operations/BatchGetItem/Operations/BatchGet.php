@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Terseq\Builders\Operations\BatchGetItem\Operations;
 
-use Terseq\Builders\Operations\Builder;
+use Terseq\Builders\Builder;
 use Terseq\Builders\Shared\BuilderParts\AppendAttributes;
 use Terseq\Builders\Shared\BuilderParts\ConsistentRead;
 use Terseq\Builders\Shared\BuilderParts\HasAttributes;

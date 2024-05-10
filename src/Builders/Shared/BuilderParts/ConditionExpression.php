@@ -17,7 +17,9 @@ trait ConditionExpression
     {
         $clone = clone $this;
 
-        $clone->conditionExpression = $closure(new Expressions\ConditionExpression($clone->valuesStorage));
+        $clone->conditionExpression = $closure(
+            new Expressions\ConditionExpression($clone->getValuesStorage()),
+        );
         $clone->attributes = array_merge($clone->attributes, $clone->conditionExpression->getAttributes());
 
         return $clone;
