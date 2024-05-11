@@ -45,8 +45,6 @@ $manager = new \Terseq\DatabaseManager($client, new Marshaler());
 ### DatabaseManager usage
 
 ```php
-use Terseq\Builders\GetItem;
-
 $manager->getItem()
     ->table(['Books', 'BookId'])
     ->pk('super-cool-id')
@@ -58,8 +56,6 @@ $manager->getItem()
 #### GetItem
 
 ```php
-use Terseq\Builders\GetItem;
-
 $manager->getItem()
     ->table(['Books', 'BookId'])
     ->pk('super-cool-id')
@@ -70,8 +66,6 @@ $manager->getItem()
 #### PutItem
 
 ```php
-use Terseq\Builders\PutItem;
-
 $manager->putItem()
     ->table(['Books', 'BookId'])
     ->item([
@@ -85,8 +79,6 @@ $manager->putItem()
 #### UpdateItem
 
 ```php
-use Terseq\Builders\UpdateItem;
-
 $manager->updateItem()
     ->table(['Books', 'BookId'])
     ->pk('super-cool-id')
@@ -98,8 +90,6 @@ $manager->updateItem()
 #### DeleteItem
 
 ```php
-use Terseq\Builders\DeleteItem;
-
 $manager->deleteItem()
     ->table(['Books', 'BookId'])
     ->pk('super-cool-id')
@@ -109,8 +99,6 @@ $manager->deleteItem()
 #### Query
 
 ```php
-use Terseq\Builders\Query;
-   
 $result = $manager->query()
     ->table(['Books', 'BookId'])
     ->pk('super-cool-id')
@@ -137,7 +125,9 @@ $manager->transactGetItems()
 #### TransactWriteItems
 
 ```php
-use Terseq\Builders\Operations\TransactWriteItems\Operations\Delete;use Terseq\Builders\Operations\TransactWriteItems\Operations\Put;use Terseq\Builders\Operations\TransactWriteItems\Operations\Update;
+use Terseq\Builders\Operations\TransactWriteItems\Operations\Delete;
+use Terseq\Builders\Operations\TransactWriteItems\Operations\Put;
+use Terseq\Builders\Operations\TransactWriteItems\Operations\Update;
 
 $manager->transactWriteItems()
     ->put(
@@ -169,8 +159,6 @@ $manager->transactWriteItems()
 #### BatchGetItem
 
 ```php
-
-
 $manager->batchGetItem()
     ->get(
         [
@@ -192,8 +180,6 @@ $manager->batchGetItem()
 #### BatchWriteItem
 
 ```php
-use Terseq\Builders\BatchWriteItem;
-
 $manager->batchWriteItem()
     ->put(
         [
@@ -218,50 +204,15 @@ $manager->batchWriteItem()
     ->dispatch();
 ```
 
-## Table name and keys
+## Table
 
-Table name and keys can be passed as array, string or object of `Terseq\Contracts\Builder\TableInterface` (recommended)
+### Table as abject (recommended)
 
-### Example of passing as array
-
+#### Example of using table object
 ```php
-new DeleteItem(table: ['TableName', 'PartitionKey', 'SortKey']);
-```
+use Terseq\Builders\Table;
 
-OR
-
-```php
-new DeleteItem(table: ['TableName', 'PartitionKey']); // Sort key by default is null
-```
-
-OR
-
-```php
-new DeleteItem(table: ['TableName']); // Sort key by default is null, Partition key by default is 'Id'
-```
-
-OR
-
-```php
-new DeleteItem(table: [
-      'table' => 'TableName',
-      'pk' => 'PartitionKey',
-      'sk' => 'SortKey',
-    ]);
-```
-
-### Example of passing as string
-
-```php
-new DeleteItem(table: 'TableName'); // Sort key by default is null, partition key by default is 'Id'
-```
-
-### Example of passing as object
-
-```php
-use Terseq\Builders\BatchGetItem;
-
-class MyTable extends \Terseq\Builders\Table 
+class Books extends Table 
 {
     public function getTableName(): string
     {
@@ -273,50 +224,71 @@ class MyTable extends \Terseq\Builders\Table
         return new Keys(partitionKey: 'BookId', sortKey: null);
     }
 }
-
-$table = new MyTable();
-
-$manager->batchGetItem()->dispatch(
-    static fn (BatchGetItem $builder) => $builder
-        ->get(
-            [
-                'BookId' => 'super-book-1',
-                'Author' => 'Unknown',
-            ],
-            table: $table,
-        )
-        ->get(
-            [
-                'BookId' => 'super-book-2',
-                'Author' => 'Incognito',
-            ],
-            table: $table,
-        ),
-);
 ```
 
-OR
+#### Example with [secondary indexes](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html#HowItWorks.CoreComponents.SecondaryIndexes)
 
 ```php
-class MyTable extends \Terseq\Builders\Table 
+use Terseq\Builders\Table;
+
+class BooksTable extends Table 
 {
+    /**
+     * Table name
+     */
     public function getTableName(): string
     {
         return 'Books';
     }
 
+    /**
+     * Partition key and sort key (optional)
+     */
     public function getKeys(): Keys
     {
-        return new Keys(partitionKey: 'BookId', sortKey: 'Year');
+        return new Keys(partitionKey: 'BookId', sortKey: 'ReleaseDate');
     }
 
-    public function getGlobalSecondaryIndexMap(): ?array
+    /**
+     * Secondary index map (optional) also known as GSI and LSI
+     */
+    public function getSecondaryIndexMap(): ?array
     {
         return [
             'AuthorIndex' => new Keys(partitionKey: 'AuthorId', sortKey: 'AuthorBornYear'),
+            'GenreIndex' => new Keys(partitionKey: 'GenreId', sortKey: 'GenreName'),
+            'LsiExample' => new Keys(partitionKey: 'BookId', sortKey: 'AuthorBornYear'),
         ];
     }
 }
+```
+
+### Table as array
+
+```php
+table(table: ['TableName', 'PartitionKey', 'SortKey']);
+```
+
+OR
+
+```php
+table(table: ['TableName', 'PartitionKey']); // Sort key by default is null
+```
+
+OR
+
+```php
+table(table: ['TableName']); // throws exception, because PartitionKey is required
+```
+
+OR
+
+```php
+table(table: [
+    'table' => 'TableName',
+    'pk' => 'PartitionKey',
+    'sk' => 'SortKey',
+]);
 ```
 
 ## Single-table design (recommended)

@@ -25,7 +25,7 @@ class BatchWriteItem extends Builder
         mixed $skValue = null,
         ?string $pkAttribute = null,
         ?string $skAttribute = null,
-        TableInterface|string|array|null $table = null,
+        TableInterface|array|null $table = null,
     ): static {
         $clone = clone $this;
 
@@ -47,7 +47,7 @@ class BatchWriteItem extends Builder
     public function delete(
         mixed $value,
         ?string $attribute = null,
-        TableInterface|string|array|null $table = null,
+        TableInterface|array|null $table = null,
     ): static {
         $clone = clone $this;
 
@@ -64,7 +64,7 @@ class BatchWriteItem extends Builder
         return $clone;
     }
 
-    public function put(array $item, TableInterface|string|array|null $table = null): static
+    public function put(array $item, TableInterface|array|null $table = null): static
     {
         $clone = clone $this;
         $table = $table ? $clone->createOrGetTable($table) : null;

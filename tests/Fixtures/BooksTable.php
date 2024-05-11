@@ -22,7 +22,7 @@ class BooksTable extends Table
         );
     }
 
-    public function getGlobalSecondaryIndexMap(): ?array
+    public function getSecondaryIndexMap(): ?array
     {
         return [
             'Author' => new Keys(

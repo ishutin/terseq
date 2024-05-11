@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use Terseq\Builders\Builder;
+use Terseq\Builders\Exceptions\BuilderException;
 use Terseq\Builders\Keys;
 use Terseq\Builders\Table;
 use Terseq\Contracts\Builder\TableInterface;
@@ -25,20 +26,10 @@ final class BuilderTest extends TestCase
         $this->assertNull($builder->table);
     }
 
-    public function testConstructorWithStringTable(): void
-    {
-        $builder = $this->getBuilder('testTable');
-        $this->assertEquals('testTable', $builder->table->getTableName());
-        $this->assertEquals('Id', $builder->table->getKeys()->partitionKey);
-        $this->assertNull($builder->table->getKeys()->sortKey);
-    }
-
     public function testConstructorWithArrayTable1(): void
     {
-        $builder = $this->getBuilder(['testTable']);
-        $this->assertEquals('testTable', $builder->table->getTableName());
-        $this->assertEquals('Id', $builder->table->getKeys()->partitionKey);
-        $this->assertNull($builder->table->getKeys()->sortKey);
+        $this->expectException(BuilderException::class);
+        $this->getBuilder(['testTable']);
     }
 
     public function testConstructorWithArrayTable2(): void
@@ -80,8 +71,9 @@ final class BuilderTest extends TestCase
         $this->assertEquals('BookId', $builder->table->getKeys()->partitionKey);
         $this->assertEquals('ReleaseDate', $builder->table->getKeys()->sortKey);
     }
+
     protected function getBuilder(
-        TableInterface|string|array|null $table = null,
+        TableInterface|array|null $table = null,
         Marshaler $marshaler = new Marshaler(),
     ): Builder {
         return new class ($table, $marshaler) extends Builder {

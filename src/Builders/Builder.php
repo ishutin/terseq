@@ -12,7 +12,6 @@ use Terseq\Contracts\Builder\BuilderInterface;
 use Terseq\Contracts\Builder\TableInterface;
 
 use function is_array;
-use function is_string;
 
 abstract class Builder implements BuilderInterface
 {
@@ -24,13 +23,13 @@ abstract class Builder implements BuilderInterface
 
     /**
      * Allow table to be passed as string, array or TableInterface
-     * If you pass string, it will be converted to TableInterface and use the string as table name
      * If you pass array, it will be converted to TableInterface and use the array as table config: [table] or [table, pk] or [table, pk, sk] or ['table' => 'table', 'pk' => 'pk', 'sk' => 'sk']
-     * @param TableInterface|string|array|null $table
+     * @param TableInterface|array|null $table
      * @param Marshaler $marshaler
+     * @throws BuilderException
      */
     public function __construct(
-        TableInterface|string|array|null $table = null,
+        TableInterface|array|null $table = null,
         public Marshaler $marshaler = new Marshaler(),
     ) {
         if ($table !== null) {
@@ -39,7 +38,7 @@ abstract class Builder implements BuilderInterface
     }
 
 
-    public function table(TableInterface|string|array|null $table): static
+    public function table(TableInterface|array|null $table): static
     {
         if ($this->table !== null) {
             return $this;
@@ -66,7 +65,7 @@ abstract class Builder implements BuilderInterface
         ];
     }
 
-    protected function createOrGetTable(TableInterface|array|string|null $table): TableInterface
+    protected function createOrGetTable(TableInterface|array|null $table): TableInterface
     {
         if ($this->table) {
             return $this->table;
@@ -76,10 +75,17 @@ abstract class Builder implements BuilderInterface
             return $table;
         }
 
-        if (is_string($table)) {
-            return new class ($table) extends Table {
-                public function __construct(public string $tableName)
-                {
+        if (is_array($table)) {
+            $tableName = $table[0] ?? $table['table'] ?? throw new BuilderException('Table name is required');
+            $partitionKey = $table[1] ?? $table['pk'] ?? throw new BuilderException('Partition key is required');
+            $sortKey = $table[2] ?? $table['sk'] ?? null;
+
+            return new class ($tableName, $partitionKey, $sortKey) extends Table {
+                public function __construct(
+                    public readonly string $tableName,
+                    public readonly string $partitionKey,
+                    public readonly ?string $sortKey = null,
+                ) {
                 }
 
                 public function getTableName(): string
@@ -90,30 +96,8 @@ abstract class Builder implements BuilderInterface
                 public function getKeys(): Keys
                 {
                     return new Keys(
-                        partitionKey: 'Id',
-                    );
-                }
-            };
-        }
-
-        if (is_array($table)) {
-            return new class ($table) extends Table {
-                public function __construct(public array $table)
-                {
-                }
-
-                public function getTableName(): string
-                {
-                    return $this->table[0] ?? $this->table['table'] ?? throw new BuilderException(
-                        'Table name is required',
-                    );
-                }
-
-                public function getKeys(): Keys
-                {
-                    return new Keys(
-                        partitionKey: $this->table[1] ?? $this->table['pk'] ?? 'Id',
-                        sortKey: $this->table[2] ?? $this->table['sk'] ?? null,
+                        partitionKey: $this->partitionKey,
+                        sortKey: $this->sortKey,
                     );
                 }
             };

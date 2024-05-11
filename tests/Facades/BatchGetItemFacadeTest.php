@@ -52,7 +52,7 @@ final class BatchGetItemFacadeTest extends TestCase
 
 
         $facade = new BatchGetItem($client);
-        $builder = new \Terseq\Builders\BatchGetItem('testTable');
+        $builder = new \Terseq\Builders\BatchGetItem(['testTable', 'Id']);
 
         $result = $facade->dispatch($builder);
 

@@ -41,7 +41,7 @@ class TransactWriteItems extends Builder
      */
     protected array $update = [];
 
-    public function conditionCheck(Closure|array $closure, TableInterface|string|array|null $table = null): static
+    public function conditionCheck(Closure|array $closure, TableInterface|array|null $table = null): static
     {
         $clone = clone $this;
 
@@ -62,7 +62,7 @@ class TransactWriteItems extends Builder
         return $clone;
     }
 
-    public function put(Closure|array $closure, TableInterface|string|array|null $table = null): static
+    public function put(Closure|array $closure, TableInterface|array|null $table = null): static
     {
         $clone = clone $this;
 
@@ -82,7 +82,7 @@ class TransactWriteItems extends Builder
         return $clone;
     }
 
-    public function delete(Closure|array $closure, TableInterface|string|array|null $table = null): static
+    public function delete(Closure|array $closure, TableInterface|array|null $table = null): static
     {
         $clone = clone $this;
         if ($closure instanceof Closure) {
@@ -98,7 +98,7 @@ class TransactWriteItems extends Builder
         return $clone;
     }
 
-    public function update(Closure|array $closure, TableInterface|string|array|null $table = null): static
+    public function update(Closure|array $closure, TableInterface|array|null $table = null): static
     {
         $clone = clone $this;
 

@@ -15,9 +15,9 @@ interface TableInterface
     /**
      * @return array<string, Keys>|null
      */
-    public function getGlobalSecondaryIndexMap(): ?array;
+    public function getSecondaryIndexMap(): ?array;
 
     public function getKeysFromMemory(): Keys;
 
-    public function getGlobalSecondaryIndexMapFromMemory(): ?array;
+    public function getSecondaryIndexMapFromMemory(): ?array;
 }

@@ -24,7 +24,7 @@ class TransactGetItems extends Builder
      */
     protected array $get = [];
 
-    public function get(Closure|array $closure, TableInterface|string|array|null $table = null): static
+    public function get(Closure|array $closure, TableInterface|array|null $table = null): static
     {
         $clone = clone $this;
         if ($closure instanceof Closure) {

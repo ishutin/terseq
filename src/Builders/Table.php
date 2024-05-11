@@ -9,20 +9,20 @@ use Terseq\Contracts\Builder\TableInterface;
 abstract class Table implements TableInterface
 {
     protected ?Keys $keys = null;
-    protected ?array $globalSecondaryIndexMap = null;
+    protected ?array $secondaryIndexMap = null;
 
-    public function getGlobalSecondaryIndexMap(): ?array
+    public function getSecondaryIndexMap(): ?array
     {
         return null;
     }
 
-    public function getGlobalSecondaryIndexMapFromMemory(): ?array
+    public function getSecondaryIndexMapFromMemory(): ?array
     {
-        if (!$this->globalSecondaryIndexMap) {
-            $this->globalSecondaryIndexMap = $this->getGlobalSecondaryIndexMap();
+        if (!$this->secondaryIndexMap) {
+            $this->secondaryIndexMap = $this->getSecondaryIndexMap();
         }
 
-        return $this->globalSecondaryIndexMap;
+        return $this->secondaryIndexMap;
     }
 
     public function getKeysFromMemory(): Keys

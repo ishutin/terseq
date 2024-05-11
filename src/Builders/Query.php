@@ -240,7 +240,7 @@ class Query extends Builder
 
         if (
             $this->indexName
-            && $secondaryKey = ($this->table->getGlobalSecondaryIndexMapFromMemory()[$this->indexName] ?? null)
+            && $secondaryKey = ($this->table->getSecondaryIndexMapFromMemory()[$this->indexName] ?? null)
         ) {
             $attribute = $secondaryKey->sortKey;
         } elseif ($this->skAttribute) {
@@ -256,7 +256,7 @@ class Query extends Builder
 
         if (
             $this->indexName
-            && $secondaryKey = ($this->table->getGlobalSecondaryIndexMapFromMemory()[$this->indexName] ?? null)
+            && $secondaryKey = ($this->table->getSecondaryIndexMapFromMemory()[$this->indexName] ?? null)
         ) {
             $attribute = $secondaryKey->partitionKey;
         } elseif ($this->pkAttribute) {

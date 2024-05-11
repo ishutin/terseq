@@ -21,7 +21,7 @@ class BatchGetItem extends Builder
     protected array $requestItems = [];
     protected array $requestItemsKeys = [];
 
-    public function get(Closure $closure, TableInterface|string|array|null $table = null): static
+    public function get(Closure $closure, TableInterface|array|null $table = null): static
     {
         $clone = clone $this;
         $table = $table ? $clone->createOrGetTable($table) : null;
