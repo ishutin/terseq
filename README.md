@@ -51,15 +51,6 @@ $client = new \Aws\DynamoDb\DynamoDbClient([
 $manager = new \Terseq\DatabaseManager($client, new Marshaler());
 ```
 
-### DatabaseManager usage
-
-```php
-$manager->getItem()
-    ->table(['Books', 'BookId'])
-    ->pk('super-cool-id')
-    ->dispatch();
-```
-
 ### Operations
 
 #### GetItem
@@ -69,7 +60,6 @@ $manager->getItem()
     ->table(['Books', 'BookId'])
     ->pk('super-cool-id')
     ->dispatch();
-);
 ```
 
 #### PutItem
