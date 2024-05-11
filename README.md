@@ -5,19 +5,28 @@ DynamoDB using the AWS SDK for PHP.
 
 ## Features
 
-Terseq supports building queries for the following DynamoDB operations:
+### Terseq supports building queries for the following DynamoDB operations:
 
-- GetItem
-- PutItem
-- UpdateItem
-- DeleteItem
-- Query
-- TransactGetItems
-- TransactWriteItems
-- BatchGetItem
-- BatchWriteItem
+#### Single-item operations
 
-Package uses AWS SDK for PHP v3
+- [GetItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_GetItem.html)
+- [PutItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_PutItem.html)
+- [UpdateItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateItem.html)
+- [DeleteItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_DeleteItem.html)
+
+#### Query operations
+
+- [Query](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Query.html)
+
+#### Transactions
+
+- [TransactGetItems](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_TransactGetItems.html)
+- [TransactWriteItems](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_TransactWriteItems.html)
+
+#### Batch
+
+- [BatchGetItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchGetItem.html)
+- [BatchWriteItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchWriteItem.html)
 
 ## Installation
 
@@ -209,6 +218,7 @@ $manager->batchWriteItem()
 ### Table as abject (recommended)
 
 #### Example of using table object
+
 ```php
 use Terseq\Builders\Table;
 
