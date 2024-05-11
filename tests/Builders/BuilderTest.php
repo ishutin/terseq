@@ -72,6 +72,22 @@ final class BuilderTest extends TestCase
         $this->assertEquals('ReleaseDate', $builder->table->getKeys()->sortKey);
     }
 
+    public function testSetTableWhenTableIsDefined(): void
+    {
+        $table = new BooksTable();
+        $builder = $this->getBuilder($table);
+        $builder->table($table);
+        $builder->table(['testTable', 'Pk']);
+
+        $this->assertSame($table, $builder->table);
+    }
+
+    public function testNotCreateCloneWhenTableDefinedNull(): void
+    {
+        $builder = $this->getBuilder();
+        $this->assertSame($builder, $builder->table(null));
+    }
+
     protected function getBuilder(
         TableInterface|array|null $table = null,
         Marshaler $marshaler = new Marshaler(),

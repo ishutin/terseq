@@ -2,22 +2,31 @@
 
 declare(strict_types=1);
 
-namespace Terseq\Tests\Facades;
+namespace Terseq\Tests\Dispatchers;
 
 use Aws\DynamoDb\Marshaler;
 use Aws\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
+use Terseq\Builders\Builder;
+use Terseq\Builders\Shared\BuilderParts\SingleWriteOperations;
 use Terseq\Dispatchers\BatchGetItem;
 use Terseq\Dispatchers\Results\BatchGetItemResult;
 use Terseq\Tests\Fixtures\DynamoDbClientMock;
 
 #[CoversClass(BatchGetItem::class)]
-final class BatchGetItemFacadeTest extends TestCase
+#[UsesClass(Builder::class)]
+#[UsesClass(BatchGetItemResult::class)]
+#[UsesClass(SingleWriteOperations::class)]
+final class BatchGetItemTest extends TestCase
 {
+    /**
+     * @throws Exception
+     */
     public function testDispatch(): void
     {
-        //        $client = $this->createMock(DynamoDbClient::class);
         $client = $this->getMockBuilder(DynamoDbClientMock::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['batchGetItem'])
@@ -51,10 +60,11 @@ final class BatchGetItemFacadeTest extends TestCase
             );
 
 
-        $facade = new BatchGetItem($client);
-        $builder = new \Terseq\Builders\BatchGetItem(['testTable', 'Id']);
+        $dispatcher = new BatchGetItem($client);
+        $builder = $this->createStub(\Terseq\Builders\BatchGetItem::class);
+        $builder->method('getQuery')->willReturn([]);
 
-        $result = $facade->dispatch($builder);
+        $result = $dispatcher->dispatch($builder);
 
         $this->assertInstanceOf(BatchGetItemResult::class, $result);
         $this->assertEquals(

@@ -7,6 +7,7 @@ namespace Terseq\Tests\Builders;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
+use Terseq\Builders\Exceptions\BuilderException;
 use Terseq\Builders\Expressions\Condition\Condition;
 use Terseq\Builders\Expressions\Condition\ConditionItem;
 use Terseq\Builders\Expressions\Condition\GroupCondition;
@@ -89,5 +90,80 @@ class QueryTest extends TestCase
             ],
             'Select' => 'ALL_ATTRIBUTES',
         ], $builder->getQuery());
+    }
+
+    public function testComposite(): void
+    {
+        $builder = (new Query())
+            ->table(new BooksTable())
+            ->composite('pk-id', 'sk-id');
+
+        $this->assertEquals([
+            'TableName' => 'Books',
+            'KeyConditionExpression' => '#BookId = :bookid_0 AND #ReleaseDate = :releasedate_0',
+            'ExpressionAttributeNames' => [
+                '#BookId' => 'BookId',
+                '#ReleaseDate' => 'ReleaseDate',
+            ],
+            'ExpressionAttributeValues' => [
+                ':bookid_0' => ['S' => 'pk-id'],
+                ':releasedate_0' => ['S' => 'sk-id'],
+            ],
+        ], $builder->getQuery());
+    }
+
+    public function testSecondayIndex(): void
+    {
+        $builder = (new Query())
+            ->table(new BooksTable())
+            ->secondaryIndex('Author')
+            ->composite('gsi-pk', 'gsi-sk');
+
+        $this->assertEquals([
+            'TableName' => 'Books',
+            'IndexName' => 'Author',
+            'KeyConditionExpression' => '#AuthorId = :authorid_0 AND #BornDate = :borndate_0',
+            'ExpressionAttributeNames' => [
+                '#AuthorId' => 'AuthorId',
+                '#BornDate' => 'BornDate',
+            ],
+            'ExpressionAttributeValues' => [
+                ':authorid_0' => ['S' => 'gsi-pk'],
+                ':borndate_0' => ['S' => 'gsi-sk'],
+            ],
+        ], $builder->getQuery());
+    }
+
+    public function testKeysWasPassedManually(): void
+    {
+        $builder = (new Query())
+            ->table(new BooksTable())
+            ->secondaryIndex('TEST')
+            ->notScanIndexForward()
+            ->composite('pk-id', 'sk-id', 'MyPk', 'MySk');;
+
+        $this->assertEquals([
+            'TableName' => 'Books',
+            'IndexName' => 'TEST',
+            'KeyConditionExpression' => '#MyPk = :mypk_0 AND #MySk = :mysk_0',
+            'ExpressionAttributeNames' => [
+                '#MyPk' => 'MyPk',
+                '#MySk' => 'MySk',
+            ],
+            'ExpressionAttributeValues' => [
+                ':mypk_0' => ['S' => 'pk-id'],
+                ':mysk_0' => ['S' => 'sk-id'],
+            ],
+            'ScanIndexForward' => false,
+        ], $builder->getQuery());
+    }
+
+    public function testWithoutPartitionKey(): void
+    {
+        $builder = (new Query())
+            ->table(new BooksTable());
+
+        $this->expectException(BuilderException::class);
+        $builder->getQuery();
     }
 }

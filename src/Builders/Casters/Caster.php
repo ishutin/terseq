@@ -16,6 +16,11 @@ class Caster
     ) {
     }
 
+    public function getCasters(): array
+    {
+        return $this->casters;
+    }
+
     public function add(string $attribute, CasterInterface $caster): static
     {
         $clone = clone $this;

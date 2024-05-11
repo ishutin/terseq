@@ -7,8 +7,13 @@ namespace Terseq\Builders\Shared\Extends;
 use Terseq\Builders\Exceptions\BuilderException;
 use Terseq\Builders\Operations\Query\Enums\ComparisonOperator;
 
+use function sprintf;
+
 trait RenderCondition
 {
+    /**
+     * @throws BuilderException
+     */
     public function renderCondition(
         ComparisonOperator $operator,
         array $values,
@@ -58,8 +63,8 @@ trait RenderCondition
                     $operator->value,
                     implode(', ', $values),
                 );
+            default:
+                throw new BuilderException(sprintf('Operator %s used incorrectly', $operator->value));
         }
-
-        return throw new BuilderException('Incorrect operator');
     }
 }

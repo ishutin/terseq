@@ -36,7 +36,7 @@ class Query extends Builder
     protected ?FilterExpression $filterExpression = null;
     protected ?int $limit = null;
     protected ?Select $select = null;
-    protected ?string $indexName = null;
+    protected ?string $secondaryIndex = null;
     protected ?bool $scanIndexForward = null;
     protected ?array $exclusiveStartKey = null;
     protected ?string $pkAttribute = null;
@@ -134,10 +134,10 @@ class Query extends Builder
         return $clone;
     }
 
-    public function indexName(string $indexName): static
+    public function secondaryIndex(string $indexName): static
     {
         $clone = clone $this;
-        $clone->indexName = $indexName;
+        $clone->secondaryIndex = $indexName;
 
         return $clone;
     }
@@ -151,8 +151,8 @@ class Query extends Builder
         $config = $clone->appendConsistentRead($config);
         $config = $clone->appendReturnConsumedCapacity($config);
 
-        if ($clone->indexName) {
-            $config['IndexName'] = $clone->indexName;
+        if ($clone->secondaryIndex) {
+            $config['IndexName'] = $clone->secondaryIndex;
         }
 
         if (
@@ -239,8 +239,8 @@ class Query extends Builder
         $attribute = $this->table->getKeysFromMemory()->sortKey;
 
         if (
-            $this->indexName
-            && $secondaryKey = ($this->table->getSecondaryIndexMapFromMemory()[$this->indexName] ?? null)
+            $this->secondaryIndex
+            && $secondaryKey = ($this->table->getSecondaryIndexMapFromMemory()[$this->secondaryIndex] ?? null)
         ) {
             $attribute = $secondaryKey->sortKey;
         } elseif ($this->skAttribute) {
@@ -255,8 +255,8 @@ class Query extends Builder
         $attribute = $this->table->getKeysFromMemory()->partitionKey;
 
         if (
-            $this->indexName
-            && $secondaryKey = ($this->table->getSecondaryIndexMapFromMemory()[$this->indexName] ?? null)
+            $this->secondaryIndex
+            && $secondaryKey = ($this->table->getSecondaryIndexMapFromMemory()[$this->secondaryIndex] ?? null)
         ) {
             $attribute = $secondaryKey->partitionKey;
         } elseif ($this->pkAttribute) {
