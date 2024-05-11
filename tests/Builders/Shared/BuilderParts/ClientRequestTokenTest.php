@@ -13,7 +13,7 @@ class ClientRequestTokenTest extends TestCase
 {
     public function testClientRequestTokenSetsTokenAndReturnsClone(): void
     {
-        $object = new class {
+        $object = new class () {
             use ClientRequestToken;
         };
 
@@ -23,10 +23,11 @@ class ClientRequestTokenTest extends TestCase
 
     public function testAppendClientRequestTokenAddsTokenToConfigWhenSet(): void
     {
-        $object = new class {
+        $object = new class () {
             use ClientRequestToken;
 
-            public function append(array $config) {
+            public function append(array $config)
+            {
                 return $this->appendClientRequestToken($config);
             }
         };
@@ -38,10 +39,11 @@ class ClientRequestTokenTest extends TestCase
 
     public function testAppendClientRequestTokenDoesNotAddTokenToConfigWhenNotSet(): void
     {
-        $object = new class {
+        $object = new class () {
             use ClientRequestToken;
 
-            public function append(array $config) {
+            public function append(array $config)
+            {
                 return $this->appendClientRequestToken($config);
             }
         };

@@ -74,7 +74,7 @@ final class RenderConditionTest extends TestCase
         string $attribute,
         ?ComparisonOperator $additionalOperator,
     ): void {
-        $renderCondition = new class {
+        $renderCondition = new class () {
             use RenderCondition;
         };
 
@@ -86,7 +86,7 @@ final class RenderConditionTest extends TestCase
 
     public function testBetween1(): void
     {
-        $renderCondition = new class {
+        $renderCondition = new class () {
             use RenderCondition;
         };
 
@@ -101,7 +101,7 @@ final class RenderConditionTest extends TestCase
 
     public function testBetween2(): void
     {
-        $renderCondition = new class {
+        $renderCondition = new class () {
             use RenderCondition;
         };
 
@@ -116,7 +116,7 @@ final class RenderConditionTest extends TestCase
 
     public function testBetween3(): void
     {
-        $renderCondition = new class {
+        $renderCondition = new class () {
             use RenderCondition;
         };
 
@@ -132,7 +132,7 @@ final class RenderConditionTest extends TestCase
 
     public function testEmptyValues1(): void
     {
-        $renderCondition = new class {
+        $renderCondition = new class () {
             use RenderCondition;
         };
 
@@ -147,7 +147,7 @@ final class RenderConditionTest extends TestCase
 
     public function testEmptyValues2(): void
     {
-        $renderCondition = new class {
+        $renderCondition = new class () {
             use RenderCondition;
         };
 
@@ -162,7 +162,7 @@ final class RenderConditionTest extends TestCase
 
     public function testEmptyValues3(): void
     {
-        $renderCondition = new class {
+        $renderCondition = new class () {
             use RenderCondition;
         };
 
@@ -177,7 +177,7 @@ final class RenderConditionTest extends TestCase
 
     public function testWringComparsionOperator(): void
     {
-        $renderCondition = new class {
+        $renderCondition = new class () {
             use RenderCondition;
         };
 

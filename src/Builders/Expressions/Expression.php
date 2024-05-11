@@ -68,19 +68,4 @@ abstract class Expression
 
         return $this;
     }
-
-    protected function modifyAttributeAndValue(string &$attribute, mixed &$value = null): void
-    {
-        $defaultAttributeName = $this->getDefaultAttributeName();
-
-        if ($value === null && $defaultAttributeName !== null) {
-            $value = $attribute;
-            $attribute = $defaultAttributeName;
-        }
-    }
-
-    protected function getDefaultAttributeName(): ?string
-    {
-        return null;
-    }
 }

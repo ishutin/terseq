@@ -17,7 +17,7 @@ final class HasCastersTest extends TestCase
 {
     public function testAddCaster(): void
     {
-        $builder = new class {
+        $builder = new class () {
             use HasCasters;
         };
 
@@ -29,7 +29,7 @@ final class HasCastersTest extends TestCase
 
     public function testAddCasterAddsCasterToExistingCasters(): void
     {
-        $builder = new class {
+        $builder = new class () {
             use HasCasters;
         };
 
@@ -38,7 +38,7 @@ final class HasCastersTest extends TestCase
 
     public function testAddMoreThanOne(): void
     {
-        $builder = new class {
+        $builder = new class () {
             use HasCasters;
         };
 

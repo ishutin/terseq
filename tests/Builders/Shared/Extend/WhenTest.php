@@ -13,7 +13,7 @@ final class WhenTest extends TestCase
 {
     public function testWhenConditionIsTrueCallbackIsCalled(): void
     {
-        $when = new class {
+        $when = new class () {
             use When;
         };
 
@@ -30,7 +30,7 @@ final class WhenTest extends TestCase
 
     public function testWhenConditionIsFalseCallbackIsNotCalled(): void
     {
-        $when = new class {
+        $when = new class () {
             use When;
         };
 

@@ -140,7 +140,8 @@ class QueryTest extends TestCase
             ->table(new BooksTable())
             ->secondaryIndex('TEST')
             ->notScanIndexForward()
-            ->composite('pk-id', 'sk-id', 'MyPk', 'MySk');;
+            ->composite('pk-id', 'sk-id', 'MyPk', 'MySk');
+        ;
 
         $this->assertEquals([
             'TableName' => 'Books',

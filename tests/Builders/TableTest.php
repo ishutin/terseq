@@ -16,7 +16,7 @@ final class TableTest extends TestCase
 {
     public function testConstruct(): void
     {
-        $table = new class extends Table {
+        $table = new class () extends Table {
             public function getTableName(): string
             {
                 return 'test-table';
