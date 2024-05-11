@@ -28,6 +28,10 @@ DynamoDB using the AWS SDK for PHP.
 - [BatchGetItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchGetItem.html)
 - [BatchWriteItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchWriteItem.html)
 
+## Why I should use this library?
+
+AWS SDK for PHP is a powerful tool for working with AWS services, but it can be challenging to use due to its complexity. It requires a lot of boilerplate code to build and execute queries. Terseq simplifies this process by providing a fluent interface to build queries for DynamoDB operations. It also supports single-table design, which is a recommended practice for DynamoDB.
+
 ## Installation
 
 To install the Terseq package, run the following command in your project directory using Composer:
@@ -342,5 +346,52 @@ $manager->batchWriteItem()
             'BookId' => 'super-book-3',
         ],
     )
+    ->dispatch();
+```
+
+## Comparison with AWS SDK
+
+### Example of using AWS SDK
+
+```php
+$client->updateItem(
+    [
+        'TableName' => 'Books',
+        'UpdateExpression' => 'SET #Title = :title_0, #Author = :author_0',
+        'ExpressionAttributeNames' =>
+            [
+                '#Title' => 'Title',
+                '#Author' => 'Author',
+            ],
+        'ExpressionAttributeValues' =>
+            [
+                ':title_0' =>
+                    [
+                        'S' => 'Super Cool Book Updated',
+                    ],
+                ':author_0' =>
+                    [
+                        'S' => 'Super Cool Author Updated',
+                    ],
+            ],
+        'Key' =>
+            [
+                'BookId' =>
+                    [
+                        'S' => 'super-cool-id',
+                    ],
+            ],
+    ],
+);
+```
+
+### Example of using Terseq
+for the same operation
+```php
+$manager->updateItem()
+    ->table(['Books', 'BookId'])
+    ->pk('super-cool-id')
+    ->set('Title', 'Super Cool Book Updated')
+    ->set('Author', 'Super Cool Author Updated')
     ->dispatch();
 ```
