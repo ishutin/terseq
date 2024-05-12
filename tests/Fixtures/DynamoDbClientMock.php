@@ -12,7 +12,7 @@ class DynamoDbClientMock extends DynamoDbClient
     {
     }
 
-    public function batchGetItemAsync(array $args)
+    public function batchGetItemAsync(array $args = [])
     {
     }
 
@@ -20,7 +20,7 @@ class DynamoDbClientMock extends DynamoDbClient
     {
     }
 
-    public function batchWriteItemAsync(array $args)
+    public function batchWriteItemAsync(array $args = [])
     {
     }
 
@@ -28,7 +28,7 @@ class DynamoDbClientMock extends DynamoDbClient
     {
     }
 
-    public function deleteItemAsync(array $args)
+    public function deleteItemAsync(array $args = [])
     {
     }
 
@@ -36,7 +36,7 @@ class DynamoDbClientMock extends DynamoDbClient
     {
     }
 
-    public function getItemAsync(array $args)
+    public function getItemAsync(array $args = [])
     {
     }
 }

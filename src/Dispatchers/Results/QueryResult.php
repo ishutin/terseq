@@ -17,7 +17,6 @@ final readonly class QueryResult
     public function __construct(
         protected int $count,
         protected int $scannedCount,
-        protected array $metadata,
         protected ?Collection $items = null,
         protected ?array $lastEvaluatedKey = null,
         protected ?array $consumedCapacity = null,
@@ -75,7 +74,6 @@ final readonly class QueryResult
         return new self(
             count: $result['Count'],
             scannedCount: $result['ScannedCount'],
-            metadata: $result['@metadata'],
             items: $items,
             lastEvaluatedKey: $lastEvaluatedKey,
             consumedCapacity: $result['ConsumedCapacity'] ?? [],
