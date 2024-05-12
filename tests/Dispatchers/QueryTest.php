@@ -15,7 +15,7 @@ use Terseq\Tests\Fixtures\DynamoDbClientMock;
 use Terseq\Tests\Helpers\DispatcherTestHelper;
 
 #[CoversClass(Query::class)]
-#[UsesClass(QueryResult::class)]
+#[CoversClass(QueryResult::class)]
 #[UsesClass(Caster::class)]
 class QueryTest extends TestCase
 {
@@ -87,11 +87,19 @@ class QueryTest extends TestCase
             ],
             $result->getConsumedCapacity(),
         );
+
+        $this->assertEquals(
+            [
+                'Id' => 'Amazon DynamoDB#DynamoDB Thread 1',
+                'ReplyDateTime' => '2015-02-25T20:27:36.165Z',
+            ],
+            $result->getLastEvaluatedKey(),
+        );
     }
 
     protected function getResponseJson(): string
     {
-        return ' {
+        return '{
             "ConsumedCapacity": {
                 "CapacityUnits": 1,
                 "TableName": "Reply"
@@ -109,7 +117,11 @@ class QueryTest extends TestCase
                     "Id": {"S": "Amazon DynamoDB#DynamoDB Thread 1"}
                 }
             ],
-            "ScannedCount": 2
+            "ScannedCount": 2,
+            "LastEvaluatedKey": {
+                "Id": {"S": "Amazon DynamoDB#DynamoDB Thread 1"},
+                "ReplyDateTime": {"S": "2015-02-25T20:27:36.165Z"}
+            }
         }';
     }
 }

@@ -7,16 +7,17 @@ namespace Terseq\Tests\Dispatchers;
 use Aws\DynamoDb\SetValue;
 use JsonException;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Terseq\Dispatchers\PutItem;
+use Terseq\Dispatchers\Results\Helpers\ConvertItemCollectionMetrics;
 use Terseq\Dispatchers\Results\WriteOperationResult;
 use Terseq\Tests\Fixtures\DynamoDbClientMock;
 use Terseq\Tests\Helpers\DispatcherTestHelper;
 
 #[CoversClass(PutItem::class)]
-#[UsesClass(WriteOperationResult::class)]
+#[CoversClass(WriteOperationResult::class)]
+#[CoversClass(ConvertItemCollectionMetrics::class)]
 class PutItemTest extends TestCase
 {
     use DispatcherTestHelper;
@@ -85,7 +86,13 @@ class PutItemTest extends TestCase
         ], $result->getAttributes());
 
         $this->assertEquals(null, $result->getConsumedCapacity());
-        $this->assertEquals(null, $result->getItemCollectionMetrics());
+        $this->assertEquals([
+            'ItemCollectionKey' => [
+                'ForumName' => 'Amazon DynamoDB',
+                'Subject' => 'How do I update multiple items?',
+            ],
+            'SizeEstimateRangeGB' => [1.0, 1.5],
+        ], $result->getItemCollectionMetrics());
     }
 
     protected function getResponseJson(): string
@@ -110,6 +117,17 @@ class PutItemTest extends TestCase
                 "Message": {
                     "S": "I want to update multiple items in a single call. What\'s the best way to do that?"
                 }
+            },
+            "ItemCollectionMetrics": {
+                "ItemCollectionKey": {
+                    "ForumName": {
+                        "S": "Amazon DynamoDB"
+                    },
+                    "Subject": {
+                        "S": "How do I update multiple items?"
+                    }
+                },
+                "SizeEstimateRangeGB": [1.0, 1.5]
             }
         }';
     }

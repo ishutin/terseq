@@ -22,6 +22,11 @@ readonly class TransactWriteItemsResult
         return $this->consumedCapacity;
     }
 
+    public function getItemCollectionMetrics(): ?array
+    {
+        return $this->itemCollectionMetrics;
+    }
+
     public static function create(array $result, Marshaler $marshaler = new Marshaler()): self
     {
         $result = static::convertMultiplyItemCollectionMetric($result, $marshaler);

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Terseq\Tests\Dispatchers;
 
 use Aws\DynamoDb\SetValue;
-use GuzzleHttp\Promise\Promise;
 use JsonException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -20,7 +19,7 @@ use Terseq\Tests\Helpers\DispatcherTestHelper;
 
 #[CoversClass(BatchGetItem::class)]
 #[UsesClass(Builder::class)]
-#[UsesClass(BatchGetItemResult::class)]
+#[CoversClass(BatchGetItemResult::class)]
 #[UsesClass(SingleWriteOperations::class)]
 final class BatchGetItemTest extends TestCase
 {
@@ -104,7 +103,29 @@ final class BatchGetItemTest extends TestCase
         );
 
         $this->assertEquals(
-            [],
+            [
+                'Forum' => [
+                    [
+                        'ConsistentRead' => true,
+                        'Keys' => [
+                            [
+                                'Name' => 'Amazon ElastiCache',
+                                'Category' => 'Amazon Web Services',
+                            ],
+                        ],
+                    ],
+                ],
+                'Thread' => [
+                    [
+                        'Keys' => [
+                            [
+                                'ForumName' => 'Amazon DynamoDB',
+                                'Subject' => 'How do I update multiple items?',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
             $result->getUnprocessedKeys(),
         );
 
@@ -183,6 +204,35 @@ final class BatchGetItemTest extends TestCase
                 ]
             },
             "UnprocessedKeys": {
+                "Forum": [
+                    {
+                        "ConsistentRead": true,
+                        "Keys": [
+                            {
+                                "Name": {
+                                    "S": "Amazon ElastiCache"
+                                },
+                                "Category": {
+                                    "S": "Amazon Web Services"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "Thread": [
+                    {
+                        "Keys": [
+                            {
+                                "ForumName": {
+                                    "S": "Amazon DynamoDB"
+                                },
+                                "Subject": {
+                                    "S": "How do I update multiple items?"
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
             "ConsumedCapacity": [
                 {

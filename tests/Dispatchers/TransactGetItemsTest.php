@@ -14,7 +14,7 @@ use Terseq\Tests\Fixtures\DynamoDbClientMock;
 use Terseq\Tests\Helpers\DispatcherTestHelper;
 
 #[CoversClass(TransactGetItems::class)]
-#[UsesClass(TransactGetItemsResult::class)]
+#[CoversClass(TransactGetItemsResult::class)]
 #[UsesClass(ConvertMultiplyItemCollectionMetrics::class)]
 class TransactGetItemsTest extends TestCase
 {
@@ -93,7 +93,6 @@ class TransactGetItemsTest extends TestCase
                 'CapacityUnits' => 1,
             ],
         ], $response->getConsumedCapacity());
-
     }
 
     protected function getResponseJson(): string

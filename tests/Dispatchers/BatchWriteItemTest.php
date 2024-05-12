@@ -6,7 +6,6 @@ namespace Terseq\Tests\Dispatchers;
 
 use JsonException;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Terseq\Dispatchers\BatchWriteItem;
@@ -15,7 +14,7 @@ use Terseq\Tests\Fixtures\DynamoDbClientMock;
 use Terseq\Tests\Helpers\DispatcherTestHelper;
 
 #[CoversClass(BatchWriteItem::class)]
-#[UsesClass(BatchWriteItemResult::class)]
+#[CoversClass(BatchWriteItemResult::class)]
 class BatchWriteItemTest extends TestCase
 {
     use DispatcherTestHelper;

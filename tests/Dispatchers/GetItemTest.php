@@ -17,7 +17,7 @@ use Terseq\Tests\Fixtures\DynamoDbClientMock;
 use Terseq\Tests\Helpers\DispatcherTestHelper;
 
 #[CoversClass(GetItem::class)]
-#[UsesClass(GetItemResult::class)]
+#[CoversClass(GetItemResult::class)]
 #[UsesClass(Caster::class)]
 class GetItemTest extends TestCase
 {

@@ -13,7 +13,7 @@ trait ConvertItemCollectionMetrics
         if (isset($result['ItemCollectionMetrics'])) {
             foreach ($result['ItemCollectionMetrics']['ItemCollectionKey'] as $key => $itemCollection) {
                 $result['ItemCollectionMetrics']['ItemCollectionKey'][$key] = $marshaler
-                    ->unmarshalItem($itemCollection);
+                    ->unmarshalValue($itemCollection);
             }
         }
 

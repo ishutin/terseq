@@ -16,7 +16,7 @@ use Terseq\Tests\Fixtures\DynamoDbClientMock;
 use Terseq\Tests\Helpers\DispatcherTestHelper;
 
 #[CoversClass(DeleteItem::class)]
-#[UsesClass(WriteOperationResult::class)]
+#[CoversClass(WriteOperationResult::class)]
 class DeleteItemTest extends TestCase
 {
     use DispatcherTestHelper;

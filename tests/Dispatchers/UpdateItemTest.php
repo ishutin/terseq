@@ -7,7 +7,6 @@ namespace Terseq\Tests\Dispatchers;
 use Aws\DynamoDb\SetValue;
 use JsonException;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Terseq\Dispatchers\Results\WriteOperationResult;
@@ -16,7 +15,7 @@ use Terseq\Tests\Fixtures\DynamoDbClientMock;
 use Terseq\Tests\Helpers\DispatcherTestHelper;
 
 #[CoversClass(UpdateItem::class)]
-#[UsesClass(WriteOperationResult::class)]
+#[CoversClass(WriteOperationResult::class)]
 class UpdateItemTest extends TestCase
 {
     use DispatcherTestHelper;

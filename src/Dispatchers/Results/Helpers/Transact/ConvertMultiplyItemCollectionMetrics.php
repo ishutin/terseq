@@ -11,10 +11,11 @@ trait ConvertMultiplyItemCollectionMetrics
     protected static function convertMultiplyItemCollectionMetric(array $result, Marshaler $marshaler): array
     {
         if (isset($result['ItemCollectionMetrics'])) {
-            foreach ($result['ItemCollectionMetrics'] as $key => $itemCollection) {
-                foreach ($itemCollection as $keyItemCollection => $itemCollectionKey) {
-                    $result['ItemCollectionMetrics'][$key][$keyItemCollection]['ItemCollectionKey'] = $marshaler
-                        ->unmarshalItem($itemCollectionKey['ItemCollectionKey']);
+            foreach ($result['ItemCollectionMetrics'] as $table => $itemCollection) {
+                foreach ($result['ItemCollectionMetrics'][$table] as $key => $item) {
+                    $result['ItemCollectionMetrics'][$table][$key]['ItemCollectionKey'] = $marshaler->unmarshalItem(
+                        $item['ItemCollectionKey'],
+                    );
                 }
             }
         }

@@ -7,8 +7,6 @@ namespace Terseq\Dispatchers\Results;
 use Aws\DynamoDb\Marshaler;
 use Terseq\Dispatchers\Results\Helpers\Batch\ConvertResponses;
 
-use function array_map;
-
 readonly class BatchGetItemResult
 {
     use ConvertResponses;
@@ -50,11 +48,16 @@ readonly class BatchGetItemResult
     protected static function convertUnprocessedKeys(array $result, Marshaler $marshaler): array
     {
         if (isset($result['UnprocessedKeys'])) {
-            foreach ($result['UnprocessedKeys'] as $key => $value) {
-                $result['UnprocessedKeys'][$key]['Keys'] = array_map(
-                    static fn (array $attribute) => $marshaler->unmarshalItem($attribute),
-                    $result['UnprocessedKeys'][$key]['Keys'],
-                );
+            foreach ($result['UnprocessedKeys'] as $tableName => $keys) {
+                foreach ($keys as $key => $value) {
+                    foreach ($value['Keys'] as $k => $v) {
+                        foreach ($v as $kk => $vv) {
+                            $result['UnprocessedKeys'][$tableName][$key]['Keys'][$k][$kk] = $marshaler->unmarshalValue(
+                                $vv,
+                            );
+                        }
+                    }
+                }
             }
         }
 

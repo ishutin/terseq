@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Terseq\Tests\Dispatchers;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use Terseq\Dispatchers\Results\Helpers\Transact\ConvertMultiplyItemCollectionMetrics;
 use Terseq\Dispatchers\Results\TransactWriteItemsResult;
@@ -14,8 +13,8 @@ use Terseq\Tests\Fixtures\DynamoDbClientMock;
 use Terseq\Tests\Helpers\DispatcherTestHelper;
 
 #[CoversClass(TransactWriteItems::class)]
-#[UsesClass(TransactWriteItemsResult::class)]
-#[UsesClass(ConvertMultiplyItemCollectionMetrics::class)]
+#[CoversClass(TransactWriteItemsResult::class)]
+#[CoversClass(ConvertMultiplyItemCollectionMetrics::class)]
 class TransactWriteItemsTest extends TestCase
 {
     use DispatcherTestHelper;
@@ -73,6 +72,21 @@ class TransactWriteItemsTest extends TestCase
             ],
             $response->getConsumedCapacity(),
         );
+
+        $this->assertEquals(
+            [
+                'Forum' => [
+                    [
+                        'ItemCollectionKey' => [
+                            'ForumName' => 'Amazon DynamoDB',
+                            'Subject' => 'How do I update multiple items?',
+                        ],
+                        'SizeEstimateRangeGB' => [1, 1],
+                    ],
+                ],
+            ],
+            $response->getItemCollectionMetrics(),
+        );
     }
 
     protected function getResponseJson(): string
@@ -83,7 +97,25 @@ class TransactWriteItemsTest extends TestCase
                     "TableName": "Forum",
                     "CapacityUnits": 3
                 }
-            ]
+            ],
+            "ItemCollectionMetrics": {
+                "Forum": [
+                    {
+                        "ItemCollectionKey": {
+                            "ForumName": {
+                                "S": "Amazon DynamoDB"
+                            },
+                            "Subject": {
+                                "S": "How do I update multiple items?"
+                            }
+                        },
+                        "SizeEstimateRangeGB": [
+                            1,
+                            1
+                        ]
+                    }
+                ]
+            }
         }';
     }
 }
