@@ -1,5 +1,7 @@
 # Terseq: AWS DynamoDB Query Builder
 
+[![codecov](https://codecov.io/gh/ishutin/terseq/graph/badge.svg?token=SLX21EDHB1)](https://codecov.io/gh/ishutin/terseq)
+
 This document provides a comprehensive guide on how to utilize the Terseq library to build and execute queries on AWS
 DynamoDB using the AWS SDK for PHP.
 
