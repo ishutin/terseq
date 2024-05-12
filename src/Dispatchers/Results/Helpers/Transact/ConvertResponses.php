@@ -12,7 +12,7 @@ trait ConvertResponses
     {
         if (isset($result['Responses'])) {
             foreach ($result['Responses'] as $key => $response) {
-                $result['Responses'][$key]['Item'] = $marshaler->unmarshalItem($response['Item']);
+                $result['Responses'][$key] = $marshaler->unmarshalItem($response['Item']);
             }
         }
 

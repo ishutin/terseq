@@ -120,5 +120,4 @@ class BatchWriteItemTest extends TestCase
             ]
         }';
     }
-
 }

@@ -39,4 +39,44 @@ class DynamoDbClientMock extends DynamoDbClient
     public function getItemAsync(array $args = [])
     {
     }
+
+    public function putItem(array $args = [])
+    {
+    }
+
+    public function putItemAsync(array $args = [])
+    {
+    }
+
+    public function query(array $args = [])
+    {
+    }
+
+    public function queryAsync(array $args = [])
+    {
+    }
+
+    public function updateItem(array $args = [])
+    {
+    }
+
+    public function updateItemAsync(array $args = [])
+    {
+    }
+
+    public function transactWriteItems(array $args = [])
+    {
+    }
+
+    public function transactWriteItemsAsync(array $args = [])
+    {
+    }
+
+    public function transactGetItems(array $args = [])
+    {
+    }
+
+    public function transactGetItemsAsync(array $args = [])
+    {
+    }
 }

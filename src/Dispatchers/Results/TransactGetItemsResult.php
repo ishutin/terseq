@@ -12,9 +12,19 @@ readonly class TransactGetItemsResult
     use ConvertResponses;
 
     public function __construct(
-        public ?array $consumedCapacity = null,
-        public ?array $responses = null,
+        protected ?array $consumedCapacity = null,
+        protected ?array $responses = null,
     ) {
+    }
+
+    public function getConsumedCapacity(): ?array
+    {
+        return $this->consumedCapacity;
+    }
+
+    public function getResponses(): ?array
+    {
+        return $this->responses;
     }
 
     public static function create(

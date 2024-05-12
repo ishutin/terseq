@@ -12,9 +12,14 @@ readonly class TransactWriteItemsResult
     use ConvertMultiplyItemCollectionMetrics;
 
     public function __construct(
-        public ?array $consumedCapacity = null,
-        public ?array $itemCollectionMetrics = null,
+        protected ?array $consumedCapacity = null,
+        protected ?array $itemCollectionMetrics = null,
     ) {
+    }
+
+    public function getConsumedCapacity(): ?array
+    {
+        return $this->consumedCapacity;
     }
 
     public static function create(array $result, Marshaler $marshaler = new Marshaler()): self
