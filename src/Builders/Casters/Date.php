@@ -6,7 +6,7 @@ namespace Terseq\Builders\Casters;
 
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
-use Terseq\Contracts\Facades\Casters\CasterInterface;
+use Terseq\Contracts\Dispatchers\Casters\CasterInterface;
 
 readonly class Date implements CasterInterface
 {

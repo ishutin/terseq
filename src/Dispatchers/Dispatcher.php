@@ -8,8 +8,9 @@ use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Marshaler;
 use GuzzleHttp\Promise\PromiseInterface;
 use Terseq\Builders\Builder;
+use Terseq\Contracts\Dispatchers\DispatcherInterface;
 
-abstract readonly class Dispatcher
+abstract readonly class Dispatcher implements DispatcherInterface
 {
     public function __construct(
         protected DynamoDbClient $client,

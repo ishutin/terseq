@@ -7,7 +7,7 @@ namespace Terseq\Tests\Builders\Casters;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Terseq\Builders\Casters\Caster;
-use Terseq\Contracts\Facades\Casters\CasterInterface;
+use Terseq\Contracts\Dispatchers\Casters\CasterInterface;
 
 #[CoversClass(Caster::class)]
 final class CasterTest extends TestCase

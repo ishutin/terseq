@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use Terseq\Builders\Casters\Caster;
 use Terseq\Builders\Shared\Extends\HasCasters;
-use Terseq\Contracts\Facades\Casters\CasterInterface;
+use Terseq\Contracts\Dispatchers\Casters\CasterInterface;
 
 #[CoversClass(HasCasters::class)]
 #[UsesClass(Caster::class)]

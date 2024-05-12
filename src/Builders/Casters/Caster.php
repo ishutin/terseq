@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Terseq\Builders\Casters;
 
-use Terseq\Contracts\Facades\Casters\CasterInterface;
+use Terseq\Contracts\Dispatchers\Casters\CasterInterface;
 
 class Caster
 {

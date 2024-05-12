@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Terseq\Essentials;
 
 use GuzzleHttp\Promise\PromiseInterface;
-use Terseq\Dispatchers\Dispatcher;
+use Terseq\Contracts\Dispatchers\DispatcherInterface;
 
 trait Essential
 {
-    protected ?Dispatcher $dispatcher = null;
+    protected ?DispatcherInterface $dispatcher = null;
 
-    public function setDispatcher(Dispatcher $dispatcher): static
+    public function setDispatcher(DispatcherInterface $dispatcher): static
     {
         $this->dispatcher = $dispatcher;
 

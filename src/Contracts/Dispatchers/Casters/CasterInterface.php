@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Terseq\Contracts\Facades\Casters;
+namespace Terseq\Contracts\Dispatchers\Casters;
 
 interface CasterInterface
 {
