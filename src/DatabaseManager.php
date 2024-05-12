@@ -105,7 +105,6 @@ class DatabaseManager implements DatabaseManagerInterface
             $this->dispatcherInstances[$className] = new $className(
                 client: $this->client,
                 marshaler: $this->marshaler,
-                defaultTable: $this->singleTable,
             );
         }
 

@@ -48,10 +48,25 @@ readonly class WriteOperationResult
     use ConvertAttributes;
 
     public function __construct(
-        public ?array $attributes,
-        public ?array $consumedCapacity,
-        public ?array $itemCollectionMetrics,
+        protected ?array $attributes,
+        protected ?array $consumedCapacity,
+        protected ?array $itemCollectionMetrics,
     ) {
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function getConsumedCapacity(): ?array
+    {
+        return $this->consumedCapacity;
+    }
+
+    public function getItemCollectionMetrics(): ?array
+    {
+        return $this->itemCollectionMetrics;
     }
 
     public static function create(

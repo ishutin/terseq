@@ -14,10 +14,25 @@ readonly class BatchGetItemResult
     use ConvertResponses;
 
     public function __construct(
-        public ?array $responses,
-        public ?array $unprocessedKeys,
-        public ?array $consumedCapacity,
+        protected ?array $responses,
+        protected ?array $unprocessedKeys,
+        protected ?array $consumedCapacity,
     ) {
+    }
+
+    public function getResponses(): ?array
+    {
+        return $this->responses;
+    }
+
+    public function getUnprocessedKeys(): ?array
+    {
+        return $this->unprocessedKeys;
+    }
+
+    public function getConsumedCapacity(): ?array
+    {
+        return $this->consumedCapacity;
     }
 
     public static function create(array $result, Marshaler $marshaler = new Marshaler()): self

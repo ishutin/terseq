@@ -10,13 +10,13 @@ use Terseq\Builders\Casters\Caster;
 final readonly class GetItemResult
 {
     public function __construct(
-        protected array $metadata,
+        protected ?array $metadata,
         protected ?array $item = null,
         protected ?array $consumedCapacity = null,
     ) {
     }
 
-    public function getMetadata(): array
+    public function getMetadata(): ?array
     {
         return $this->metadata;
     }

@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Terseq\Tests\Dispatchers;
 
-use Aws\DynamoDb\Marshaler;
-use Aws\Result;
+use Aws\DynamoDb\SetValue;
+use GuzzleHttp\Promise\Promise;
+use JsonException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\MockObject\Exception;
@@ -15,6 +16,7 @@ use Terseq\Builders\Shared\BuilderParts\SingleWriteOperations;
 use Terseq\Dispatchers\BatchGetItem;
 use Terseq\Dispatchers\Results\BatchGetItemResult;
 use Terseq\Tests\Fixtures\DynamoDbClientMock;
+use Terseq\Tests\Helpers\DispatcherTestHelper;
 
 #[CoversClass(BatchGetItem::class)]
 #[UsesClass(Builder::class)]
@@ -22,43 +24,17 @@ use Terseq\Tests\Fixtures\DynamoDbClientMock;
 #[UsesClass(SingleWriteOperations::class)]
 final class BatchGetItemTest extends TestCase
 {
+    use DispatcherTestHelper;
+
     /**
-     * @throws Exception
+     * @throws JsonException|Exception
      */
     public function testDispatch(): void
     {
-        $client = $this->getMockBuilder(DynamoDbClientMock::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['batchGetItem'])
-            ->getMock();
+        $client = $this->createStub(DynamoDbClientMock::class);
 
-        $client->expects($this->once())
-            ->method('batchGetItem')->willReturn(
-                new Result([
-                    '@metadata' => [
-                        'metadata' => 'test',
-                    ],
-                    'Responses' => [
-                        [
-                            (new Marshaler())->marshalItem([
-                                'Id' => 'id',
-                                'Name' => 'name',
-                                'Banned' => false,
-                                'Age' => 25,
-                            ]),
-                        ],
-                        [
-                            (new Marshaler())->marshalItem([
-                                'Id' => 'id2',
-                                'Name' => 'test',
-                                'Banned' => true,
-                                'Age' => 44,
-                            ]),
-                        ],
-                    ],
-                ]),
-            );
-
+        $client->method('batchGetItem')
+            ->willReturn($this->createResult($this->getResponseJson()));
 
         $dispatcher = new BatchGetItem($client);
         $builder = $this->createStub(\Terseq\Builders\BatchGetItem::class);
@@ -66,23 +42,158 @@ final class BatchGetItemTest extends TestCase
 
         $result = $dispatcher->dispatch($builder);
 
+        $this->checkResult($result);
+    }
+
+    public function testDispatchAsync(): void
+    {
+        $client = $this->getMockBuilder(DynamoDbClientMock::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['batchGetItemAsync'])
+            ->getMock();
+
+        $promise = $this->createPromise($this->createResult($this->getResponseJson()));
+
+        $client
+            ->expects($this->once())
+            ->method('batchGetItemAsync')
+            ->willReturn($promise);
+
+        $dispatcher = new BatchGetItem($client);
+        $builder = $this->createStub(\Terseq\Builders\BatchGetItem::class);
+        $builder->method('getQuery')->willReturn([]);
+
+        $promise = $dispatcher->async($builder);
+
+        $this->checkResult($promise->wait());
+    }
+
+    protected function checkResult($result): void
+    {
         $this->assertInstanceOf(BatchGetItemResult::class, $result);
         $this->assertEquals(
             [
-                [
-                    'Id' => 'id',
-                    'Name' => 'name',
-                    'Banned' => false,
-                    'Age' => 25,
+                'Forum' => [
+                    [
+                        'Name' => 'Amazon DynamoDB',
+                        'Threads' => 5,
+                        'Messages' => 19,
+                        'Views' => 35,
+                    ],
+                    [
+                        'Name' => 'Amazon RDS',
+                        'Threads' => 8,
+                        'Messages' => 32,
+                        'Views' => 38,
+                    ],
+                    [
+                        'Name' => 'Amazon Redshift',
+                        'Threads' => 12,
+                        'Messages' => 55,
+                        'Views' => 47,
+                    ],
                 ],
-                [
-                    'Id' => 'id2',
-                    'Name' => 'test',
-                    'Banned' => true,
-                    'Age' => 44,
+                'Thread' => [
+                    [
+                        'Tags' => new SetValue(['Reads', 'MultipleUsers']),
+                        'Message' => 'How many users can read a single data item at a time? Are there any limits?',
+                    ],
                 ],
             ],
-            $result->responses,
+            $result->getResponses(),
         );
+
+        $this->assertEquals(
+            [],
+            $result->getUnprocessedKeys(),
+        );
+
+        $this->assertEquals(
+            [
+                [
+                    'TableName' => 'Forum',
+                    'CapacityUnits' => 3,
+                ],
+                [
+                    'TableName' => 'Thread',
+                    'CapacityUnits' => 1,
+                ],
+            ],
+            $result->getConsumedCapacity(),
+        );
+    }
+
+    protected function getResponseJson(): string
+    {
+        return '{
+            "Responses": {
+                "Forum": [
+                    {
+                        "Name":{
+                            "S":"Amazon DynamoDB"
+                        },
+                        "Threads":{
+                            "N":"5"
+                        },
+                        "Messages":{
+                            "N":"19"
+                        },
+                        "Views":{
+                            "N":"35"
+                        }
+                    },
+                    {
+                        "Name":{
+                            "S":"Amazon RDS"
+                        },
+                        "Threads":{
+                            "N":"8"
+                        },
+                        "Messages":{
+                            "N":"32"
+                        },
+                        "Views":{
+                            "N":"38"
+                        }
+                    },
+                    {
+                        "Name":{
+                            "S":"Amazon Redshift"
+                        },
+                        "Threads":{
+                            "N":"12"
+                        },
+                        "Messages":{
+                            "N":"55"
+                        },
+                        "Views":{
+                            "N":"47"
+                        }
+                    }
+                ],
+                "Thread": [
+                    {
+                        "Tags":{
+                            "SS":["Reads","MultipleUsers"]
+                        },
+                        "Message":{
+                            "S":"How many users can read a single data item at a time? Are there any limits?"
+                        }
+                    }
+                ]
+            },
+            "UnprocessedKeys": {
+            },
+            "ConsumedCapacity": [
+                {
+                    "TableName": "Forum",
+                    "CapacityUnits": 3
+                },
+                {
+                    "TableName": "Thread",
+                    "CapacityUnits": 1
+                }
+            ]
+        }';
     }
 }

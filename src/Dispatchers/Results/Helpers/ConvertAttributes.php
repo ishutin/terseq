@@ -11,9 +11,7 @@ trait ConvertAttributes
     protected static function convertAttributes(array $result, Marshaler $marshaler): array
     {
         if (isset($result['Attributes'])) {
-            foreach ($result['Attributes'] as $key => $attribute) {
-                $result['Attributes'][$key] = $marshaler->unmarshalItem($attribute);
-            }
+            $result['Attributes'] = $marshaler->unmarshalItem($result['Attributes']);
         }
 
         return $result;

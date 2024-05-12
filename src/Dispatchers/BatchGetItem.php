@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Terseq\Dispatchers;
 
+use Aws\Result;
 use GuzzleHttp\Promise\PromiseInterface;
 use Terseq\Builders;
 use Terseq\Dispatchers\Results\BatchGetItemResult;
@@ -25,6 +26,6 @@ readonly class BatchGetItem extends Dispatcher
     protected function performQueryAsync(Builders\Builder $builder): PromiseInterface
     {
         return $this->client->batchGetItemAsync($builder->getQuery())
-            ->then(fn ($result) => BatchGetItemResult::create($result->toArray(), $this->marshaler));
+            ->then(fn (Result $result) => BatchGetItemResult::create($result->toArray(), $this->marshaler));
     }
 }

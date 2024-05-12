@@ -11,10 +11,25 @@ use function array_map;
 readonly class BatchWriteItemResult
 {
     public function __construct(
-        public ?array $consumedCapacity = null,
-        public ?array $itemCollectionMetrics = null,
-        public ?array $unprocessedItems = null,
+        protected ?array $consumedCapacity = null,
+        protected ?array $itemCollectionMetrics = null,
+        protected ?array $unprocessedItems = null,
     ) {
+    }
+
+    public function getConsumedCapacity(): ?array
+    {
+        return $this->consumedCapacity;
+    }
+
+    public function getItemCollectionMetrics(): ?array
+    {
+        return $this->itemCollectionMetrics;
+    }
+
+    public function getUnprocessedItems(): ?array
+    {
+        return $this->unprocessedItems;
     }
 
     public static function create(array $result, Marshaler $marshaler = new Marshaler()): self
