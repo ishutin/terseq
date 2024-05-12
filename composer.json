@@ -6,7 +6,7 @@
     "scripts": {
         "analyse": "phpstan --level=5 --memory-limit=1G analyse src tests",
         "coverage": "XDEBUG_MODE=coverage phpunit ./tests --coverage-html ./coverage --color",
-        "codecov": "phpunit --coverage-clover coverage.xml ./tests",
+        "codecov": "phpunit --coverage-clover coverage.xml ./tests ./.phpunit.cache/code-coverage",
         "tests": "phpunit"
     },
     "autoload": {
