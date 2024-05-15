@@ -36,11 +36,11 @@
         "phpunit/phpunit": "^11.1",
         "phpstan/phpstan": "^1.10",
         "symfony/var-dumper": "^7.0",
-        "aws/aws-sdk-php": "^3.305",
-        "loophp/collection": "^7.6",
-        "nesbot/carbon": "^3.3"
     },
     "require": {
-        "php": "^8.3"
+        "php": "^8.3",
+        "aws/aws-sdk-php": "^3.*",
+        "loophp/collection": "^7.6",
+        "nesbot/carbon": "^3.* | ^2.*"
     }
 }
