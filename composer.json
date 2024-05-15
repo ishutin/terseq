@@ -26,7 +26,12 @@
             "email": "ishutin.alexey@gmail.com"
         }
     ],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true,
+        "preferred-install": "dist"
+    },
     "require-dev": {
         "phpunit/phpunit": "^11.1",
         "phpstan/phpstan": "^1.10",
