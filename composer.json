@@ -39,8 +39,8 @@
     },
     "require": {
         "php": "^8.3",
-        "aws/aws-sdk-php": "^3.*",
+        "aws/aws-sdk-php": "^3",
         "loophp/collection": "^7.6",
-        "nesbot/carbon": "^3.* || ^2.*"
+        "nesbot/carbon": "^3 || ^2"
     }
 }
