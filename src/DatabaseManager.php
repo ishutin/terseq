@@ -30,7 +30,7 @@ class DatabaseManager implements DatabaseManagerInterface
         ))->setDispatcher($this->getDispatcher(Dispatchers\Query::class));
     }
 
-    public function getITem(): Essentials\GetItem
+    public function getItem(): Essentials\GetItem
     {
         return (new Essentials\GetItem(
             table: $this->singleTable,

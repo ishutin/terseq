@@ -11,7 +11,7 @@ interface DatabaseManagerInterface
 {
     public function query(): Essentials\Query;
 
-    public function getITem(): Essentials\GetItem;
+    public function getItem(): Essentials\GetItem;
 
     public function deleteItem(): DeleteItem;
 

@@ -51,7 +51,7 @@ final class DatabaseManagerTest extends TestCase
 
     public function testGetItem(): void
     {
-        $result = $this->databaseManager->getITem();
+        $result = $this->databaseManager->getItem();
         $this->assertInstanceOf(GetItem::class, $result);
     }
 
