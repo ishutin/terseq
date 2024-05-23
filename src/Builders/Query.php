@@ -119,9 +119,10 @@ class Query extends Builder
     {
         $clone = clone $this;
         $clone->filterExpression = new FilterExpression($clone->getValuesStorage());
-        $clone->attributes = array_merge($clone->getAttributes(), $clone->filterExpression->getAttributes());
 
         $closure($clone->filterExpression);
+
+        $clone->attributes = array_merge($clone->getAttributes(), $clone->filterExpression->getAttributes());
 
         return $clone;
     }
