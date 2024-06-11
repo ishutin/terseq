@@ -45,8 +45,6 @@ final class EssentialTraitTest extends TestCase
             }
         };
 
-
-
         $promise = $this->createStub(PromiseInterface::class);
 
         $dispatcher = $this->createStub(DispatcherInterface::class);

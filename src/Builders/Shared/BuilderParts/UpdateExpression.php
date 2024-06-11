@@ -24,6 +24,16 @@ trait UpdateExpression
         return $clone;
     }
 
+    public function increment(string $attribute, int $value, ?string $counterAttribute = null): static
+    {
+        return $this->counterSet($attribute, $counterAttribute ?? $attribute, $value, '+');
+    }
+
+    public function decrement(string $attribute, int $value, ?string $counterAttribute = null): static
+    {
+        return $this->counterSet($attribute, $counterAttribute ?? $attribute, $value, '-');
+    }
+
     public function setIfNotExists(string $attribute, mixed $value, ?string $expressionAttribute = null): static
     {
         $clone = clone $this;
@@ -150,5 +160,19 @@ trait UpdateExpression
         }
 
         return implode(', ', $expressions);
+    }
+
+    protected function counterSet(string $attribute, string $counterAttribute, int $value, string $type): static
+    {
+        $clone = clone $this;
+
+        $clone->set[$clone->createAttribute($attribute)] = sprintf(
+            '%s %s %s',
+            $clone->createAttribute($counterAttribute),
+            $type,
+            $clone->getValuesStorage()->createValue(sprintf('%s_counter', $counterAttribute), $value),
+        );
+
+        return $clone;
     }
 }

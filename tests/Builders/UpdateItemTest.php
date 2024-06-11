@@ -47,6 +47,11 @@ final class UpdateItemTest extends TestCase
             ])
             ->set('Price', 20)
             ->set('Color', 'Red')
+            ->increment('Orders', 1)
+            ->decrement('Stock', 1)
+            ->setIfNotExists('Author', 'John Doe')
+            ->increment('Price', 10, 'Prices')
+            ->increment('Cost', 15, 'Prices')
             ->delete('IsHidden')
             ->remove('NotForSale')
             ->returnValuesOnConditionCheckFailure(ReturnValues::AllNew)
@@ -58,7 +63,7 @@ final class UpdateItemTest extends TestCase
             'ReturnItemCollectionMetrics' => 'SIZE',
             'ReturnValues' => 'ALL_OLD',
             'ReturnValuesOnConditionCheckFailure' => 'ALL_NEW',
-            'UpdateExpression' => 'SET #Price = :price_0, #Color = :color_0 ADD #Countries :countries_0, #Categories :categories_0 DELETE #IsHidden REMOVE #NotForSale',
+            'UpdateExpression' => 'SET #Price = #Prices + :prices_counter_0, #Color = :color_0, #Orders = #Orders + :orders_counter_0, #Stock = #Stock - :stock_counter_0, #Author = if_not_exists(#Author, :author_0), #Cost = #Prices + :prices_counter_1 ADD #Countries :countries_0, #Categories :categories_0 DELETE #IsHidden REMOVE #NotForSale',
             'ExpressionAttributeNames' =>
                 [
                     '#Countries' => 'Countries',
@@ -67,6 +72,11 @@ final class UpdateItemTest extends TestCase
                     '#Color' => 'Color',
                     '#IsHidden' => 'IsHidden',
                     '#NotForSale' => 'NotForSale',
+                    '#Orders' => 'Orders',
+                    '#Stock' => 'Stock',
+                    '#Author' => 'Author',
+                    '#Prices' => 'Prices',
+                    '#Cost' => 'Cost',
                 ],
             'ExpressionAttributeValues' =>
                 [
@@ -105,6 +115,21 @@ final class UpdateItemTest extends TestCase
                         [
                             'S' => 'Red',
                         ],
+                    ':orders_counter_0' => [
+                        'N' => '1',
+                    ],
+                    ':stock_counter_0' => [
+                        'N' => '1',
+                    ],
+                    ':prices_counter_0' => [
+                        'N' => '10',
+                    ],
+                    ':author_0' => [
+                        'S' => 'John Doe',
+                    ],
+                    ':prices_counter_1' => [
+                        'N' => '15',
+                    ],
                 ],
             'Key' =>
                 [
