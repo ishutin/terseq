@@ -17,13 +17,13 @@ final readonly class QueryResult
     public function __construct(
         protected int $count,
         protected int $scannedCount,
-        protected ?Collection $items = null,
+        protected Collection $items,
         protected ?array $lastEvaluatedKey = null,
         protected ?array $consumedCapacity = null,
     ) {
     }
 
-    public function getItems(): ?Collection
+    public function getItems(): Collection
     {
         return $this->items;
     }
@@ -54,7 +54,7 @@ final readonly class QueryResult
         Marshaler $marshaler = new Marshaler(),
         ?Caster $caster = new Caster(),
     ): self {
-        $items = null;
+        $items = \loophp\collection\Collection::fromIterable([]);
 
         $lastEvaluatedKey = $result['LastEvaluatedKey'] ?? null;
 
