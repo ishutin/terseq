@@ -15,6 +15,7 @@ class ValuesStorage
 
     public function createValue(string $attribute, mixed $value): string
     {
+        $attribute = str_replace('.', '_', $attribute);
         if (!isset($this->values[$attribute])) {
             $this->values[$attribute] = [];
         }
