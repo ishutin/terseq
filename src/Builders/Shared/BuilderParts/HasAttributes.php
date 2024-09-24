@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Terseq\Builders\Shared\BuilderParts;
 
+use function str_replace;
+
 trait HasAttributes
 {
     protected array $attributes = [];
@@ -15,7 +17,7 @@ trait HasAttributes
 
     protected function createAttribute(string $attribute): string
     {
-        $generatedName = sprintf('#%s', $attribute);
+        $generatedName = sprintf('#%s', str_replace('.', '_', $attribute));
 
         if (!isset($this->attributes[$generatedName])) {
             $this->attributes[$generatedName] = $attribute;
