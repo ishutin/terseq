@@ -167,9 +167,9 @@ trait UpdateExpression
         $clone = clone $this;
 
         $clone->set[$clone->createAttribute($attribute)] = sprintf(
-            'if_not_exists(%s, %d) %s %s',
+            'if_not_exists(%s, %s) %s %s',
             $clone->createAttribute($counterAttribute),
-            $defaultValue,
+            $clone->getValuesStorage()->createValue(sprintf('%s_counter_default', $counterAttribute), $defaultValue),
             $type,
             $clone->getValuesStorage()->createValue(sprintf('%s_counter', $counterAttribute), $value),
         );

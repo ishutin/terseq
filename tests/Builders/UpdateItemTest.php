@@ -63,7 +63,7 @@ final class UpdateItemTest extends TestCase
             'ReturnItemCollectionMetrics' => 'SIZE',
             'ReturnValues' => 'ALL_OLD',
             'ReturnValuesOnConditionCheckFailure' => 'ALL_NEW',
-            'UpdateExpression' => 'SET #Price = if_not_exists(#Prices, 0) + :prices_counter_0, #Color = :color_0, #Orders = if_not_exists(#Orders, 0) + :orders_counter_0, #Stock = if_not_exists(#Stock, 0) - :stock_counter_0, #Author = if_not_exists(#Author, :author_0), #Cost = if_not_exists(#Prices, 0) + :prices_counter_1 ADD #Countries :countries_0, #Categories :categories_0 DELETE #IsHidden REMOVE #NotForSale',
+            'UpdateExpression' => 'SET #Price = if_not_exists(#Prices, :prices_counter_default_0) + :prices_counter_0, #Color = :color_0, #Orders = if_not_exists(#Orders, :orders_counter_default_0) + :orders_counter_0, #Stock = if_not_exists(#Stock, :stock_counter_default_0) - :stock_counter_0, #Author = if_not_exists(#Author, :author_0), #Cost = if_not_exists(#Prices, :prices_counter_default_1) + :prices_counter_1 ADD #Countries :countries_0, #Categories :categories_0 DELETE #IsHidden REMOVE #NotForSale',
             'ExpressionAttributeNames' =>
                 [
                     '#Countries' => 'Countries',
@@ -129,6 +129,18 @@ final class UpdateItemTest extends TestCase
                     ],
                     ':prices_counter_1' => [
                         'N' => '15',
+                    ],
+                    ':orders_counter_default_0' => [
+                        'N' => '0',
+                    ],
+                    ':stock_counter_default_0' => [
+                        'N' => '0',
+                    ],
+                    ':prices_counter_default_0' => [
+                        'N' => '0',
+                    ],
+                    ':prices_counter_default_1' => [
+                        'N' => '0',
                     ],
                 ],
             'Key' =>
