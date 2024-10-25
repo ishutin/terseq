@@ -24,14 +24,14 @@ trait UpdateExpression
         return $clone;
     }
 
-    public function increment(string $attribute, int $value, ?string $counterAttribute = null): static
+    public function increment(string $attribute, int $value, ?string $counterAttribute = null, ?int $defaultValue = 0): static
     {
-        return $this->counterSet($attribute, $counterAttribute ?? $attribute, $value, '+');
+        return $this->counterSet($attribute, $counterAttribute ?? $attribute, $value, '+', $defaultValue);
     }
 
-    public function decrement(string $attribute, int $value, ?string $counterAttribute = null): static
+    public function decrement(string $attribute, int $value, ?string $counterAttribute = null, ?int $defaultValue = 0): static
     {
-        return $this->counterSet($attribute, $counterAttribute ?? $attribute, $value, '-');
+        return $this->counterSet($attribute, $counterAttribute ?? $attribute, $value, '-', $defaultValue);
     }
 
     public function setIfNotExists(string $attribute, mixed $value, ?string $expressionAttribute = null): static
@@ -162,13 +162,14 @@ trait UpdateExpression
         return implode(', ', $expressions);
     }
 
-    protected function counterSet(string $attribute, string $counterAttribute, int $value, string $type): static
+    protected function counterSet(string $attribute, string $counterAttribute, int $value, string $type, int $defaultValue): static
     {
         $clone = clone $this;
 
         $clone->set[$clone->createAttribute($attribute)] = sprintf(
-            '%s %s %s',
+            'if_not_exists(%s, %d) %s %s',
             $clone->createAttribute($counterAttribute),
+            $defaultValue,
             $type,
             $clone->getValuesStorage()->createValue(sprintf('%s_counter', $counterAttribute), $value),
         );
