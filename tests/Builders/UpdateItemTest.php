@@ -7,6 +7,7 @@ namespace Terseq\Tests\Builders;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
+use Terseq\Builders\Expressions\ConditionExpression;
 use Terseq\Builders\Keys;
 use Terseq\Builders\Shared\BuilderParts\ReturnValuesOnConditionCheckFailure;
 use Terseq\Builders\Shared\BuilderParts\SingleWriteOperations;
@@ -54,6 +55,9 @@ final class UpdateItemTest extends TestCase
             ->increment('Cost', 15, 'Prices')
             ->delete('IsHidden')
             ->remove('NotForSale')
+            ->conditionExpression(
+                static fn (ConditionExpression $ce) => $ce->attributeExists('BookId')
+            )
             ->returnValuesOnConditionCheckFailure(ReturnValues::AllNew)
             ->composite('book-id-for-delete', 'release-date');
 
@@ -77,6 +81,7 @@ final class UpdateItemTest extends TestCase
                     '#Author' => 'Author',
                     '#Prices' => 'Prices',
                     '#Cost' => 'Cost',
+                    '#BookId' => 'BookId',
                 ],
             'ExpressionAttributeValues' =>
                 [
@@ -154,6 +159,7 @@ final class UpdateItemTest extends TestCase
                             'S' => 'release-date',
                         ],
                 ],
+            'ConditionExpression' => 'attribute_exists(#BookId)'
         ], $builder->getQuery());
     }
 }
