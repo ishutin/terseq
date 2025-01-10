@@ -7,6 +7,8 @@ namespace Terseq\Tests\Builders;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
+use Terseq\Builders\Expressions\Condition\Condition;
+use Terseq\Builders\Expressions\Condition\ConditionItem;
 use Terseq\Builders\Expressions\ConditionExpression;
 use Terseq\Builders\Keys;
 use Terseq\Builders\Shared\BuilderParts\ReturnValuesOnConditionCheckFailure;
@@ -14,6 +16,7 @@ use Terseq\Builders\Shared\BuilderParts\SingleWriteOperations;
 use Terseq\Builders\Shared\Enums\ReturnConsumedCapacity;
 use Terseq\Builders\Shared\Enums\ReturnItemCollectionMetrics;
 use Terseq\Builders\Shared\Enums\ReturnValues;
+use Terseq\Builders\Shared\Extends\RenderCondition;
 use Terseq\Builders\Shared\ValuesStorage;
 use Terseq\Builders\Table;
 use Terseq\Builders\UpdateItem;
@@ -28,6 +31,11 @@ use Terseq\Tests\Fixtures\BooksTable;
 #[CoversClass(\Terseq\Builders\Shared\BuilderParts\ReturnItemCollectionMetrics::class)]
 #[CoversClass(\Terseq\Builders\Shared\BuilderParts\ReturnConsumedCapacity::class)]
 #[CoversClass(ReturnValuesOnConditionCheckFailure::class)]
+#[UsesClass(ConditionExpression::class)]
+#[UsesClass(RenderCondition::class)]
+#[UsesClass(ConditionItem::class)]
+#[UsesClass(Condition::class)]
+
 final class UpdateItemTest extends TestCase
 {
     public function testFullQuery(): void
