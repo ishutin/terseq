@@ -8,6 +8,7 @@ use Terseq\Builders\PutItem;
 use PHPUnit\Framework\TestCase;
 use Terseq\Tests\Fixtures\BooksTable;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use Terseq\Builders\Shared\Enums\ReturnValues;
 use Terseq\Builders\Expressions\ConditionExpression;
 use Terseq\Builders\Shared\Enums\ReturnConsumedCapacity;
@@ -15,6 +16,12 @@ use Terseq\Builders\Shared\Enums\ReturnItemCollectionMetrics;
 use Terseq\Builders\Shared\BuilderParts\ReturnValuesOnConditionCheckFailure;
 
 #[CoversClass(PutItem::class)]
+#[UsesClass(\Terseq\Builders\Expressions\Condition\Condition::class)]
+#[UsesClass(\Terseq\Builders\Expressions\Condition\ConditionItem::class)]
+#[UsesClass(\Terseq\Builders\Expressions\Expression::class)]
+#[UsesClass(\Terseq\Builders\Expressions\FilterExpression::class)]
+#[UsesClass(\Terseq\Builders\Shared\Extends\RenderCondition::class)]
+#[UsesClass(\Terseq\Builders\Shared\ValuesStorage::class)]
 #[CoversClass(\Terseq\Builders\Shared\BuilderParts\ReturnValues::class)]
 #[CoversClass(\Terseq\Builders\Shared\BuilderParts\ReturnItemCollectionMetrics::class)]
 #[CoversClass(\Terseq\Builders\Shared\BuilderParts\ReturnConsumedCapacity::class)]
