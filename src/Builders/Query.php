@@ -115,6 +115,9 @@ class Query extends Builder
         return $clone;
     }
 
+    /**
+     * @param Closure(FilterExpression): FilterExpression $closure
+     */
     public function filter(Closure $closure): static
     {
         $clone = clone $this;

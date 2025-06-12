@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace Terseq\Tests\Builders;
 
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\UsesClass;
+use Terseq\Builders\Keys;
+use Terseq\Builders\Table;
 use PHPUnit\Framework\TestCase;
 use Terseq\Builders\DeleteItem;
-use Terseq\Builders\Keys;
-use Terseq\Builders\Shared\BuilderParts\ReturnValuesOnConditionCheckFailure;
-use Terseq\Builders\Shared\BuilderParts\SingleWriteOperations;
+use Terseq\Tests\Fixtures\BooksTable;
+use PHPUnit\Framework\Attributes\UsesClass;
+use PHPUnit\Framework\Attributes\CoversClass;
+use Terseq\Builders\Shared\Enums\ReturnValues;
+use Terseq\Builders\Expressions\ConditionExpression;
 use Terseq\Builders\Shared\Enums\ReturnConsumedCapacity;
 use Terseq\Builders\Shared\Enums\ReturnItemCollectionMetrics;
-use Terseq\Builders\Shared\Enums\ReturnValues;
-use Terseq\Builders\Table;
-use Terseq\Tests\Fixtures\BooksTable;
+use Terseq\Builders\Shared\BuilderParts\SingleWriteOperations;
+use Terseq\Builders\Shared\BuilderParts\ReturnValuesOnConditionCheckFailure;
 
 #[CoversClass(DeleteItem::class)]
 #[UsesClass(Table::class)]
@@ -24,6 +25,8 @@ use Terseq\Tests\Fixtures\BooksTable;
 #[CoversClass(\Terseq\Builders\Shared\BuilderParts\ReturnValues::class)]
 #[CoversClass(\Terseq\Builders\Shared\BuilderParts\ReturnItemCollectionMetrics::class)]
 #[CoversClass(\Terseq\Builders\Shared\BuilderParts\ReturnConsumedCapacity::class)]
+#[CoversClass(\Terseq\Builders\Shared\BuilderParts\AppendAttributes::class)]
+#[CoversClass(\Terseq\Builders\Shared\BuilderParts\ConditionExpression::class)]
 #[CoversClass(ReturnValuesOnConditionCheckFailure::class)]
 class DeleteItemTest extends TestCase
 {
@@ -35,6 +38,11 @@ class DeleteItemTest extends TestCase
             ->returnItemCollectionMetrics(ReturnItemCollectionMetrics::Size)
             ->returnValues(ReturnValues::AllOld)
             ->returnValuesOnConditionCheckFailure(ReturnValues::AllNew)
+            ->conditionExpression(
+                static fn (ConditionExpression $ce) => $ce
+                    ->attributeExists('BookId')
+                    ->equal('ReleaseDate', 'release-date')
+            )
             ->composite('book-id-for-delete', 'release-date');
 
         $this->assertEquals([
@@ -50,6 +58,16 @@ class DeleteItemTest extends TestCase
                 'ReleaseDate' => [
                     'S' => 'release-date',
                 ],
+            ],
+            'ConditionExpression' => 'attribute_exists(#BookId) AND #ReleaseDate = :releasedate_0',
+            'ExpressionAttributeValues' => [
+                ':releasedate_0' => [
+                    'S' => 'release-date',
+                ],
+            ],
+            'ExpressionAttributeNames' => [
+                '#BookId' => 'BookId',
+                '#ReleaseDate' => 'ReleaseDate',
             ],
         ], $builder->getQuery());
     }

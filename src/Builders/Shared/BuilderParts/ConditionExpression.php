@@ -13,6 +13,9 @@ trait ConditionExpression
 {
     protected ?Expressions\ConditionExpression $conditionExpression = null;
 
+    /**
+     * @param Closure(Expressions\ConditionExpression): Expressions\ConditionExpression $closure
+     */
     public function conditionExpression(Closure $closure): static
     {
         $clone = clone $this;

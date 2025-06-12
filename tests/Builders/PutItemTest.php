@@ -4,19 +4,22 @@ declare(strict_types=1);
 
 namespace Terseq\Tests\Builders;
 
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Terseq\Builders\PutItem;
-use Terseq\Builders\Shared\BuilderParts\ReturnValuesOnConditionCheckFailure;
+use PHPUnit\Framework\TestCase;
+use Terseq\Tests\Fixtures\BooksTable;
+use PHPUnit\Framework\Attributes\CoversClass;
+use Terseq\Builders\Shared\Enums\ReturnValues;
+use Terseq\Builders\Expressions\ConditionExpression;
 use Terseq\Builders\Shared\Enums\ReturnConsumedCapacity;
 use Terseq\Builders\Shared\Enums\ReturnItemCollectionMetrics;
-use Terseq\Builders\Shared\Enums\ReturnValues;
-use Terseq\Tests\Fixtures\BooksTable;
+use Terseq\Builders\Shared\BuilderParts\ReturnValuesOnConditionCheckFailure;
 
 #[CoversClass(PutItem::class)]
 #[CoversClass(\Terseq\Builders\Shared\BuilderParts\ReturnValues::class)]
 #[CoversClass(\Terseq\Builders\Shared\BuilderParts\ReturnItemCollectionMetrics::class)]
 #[CoversClass(\Terseq\Builders\Shared\BuilderParts\ReturnConsumedCapacity::class)]
+#[CoversClass(\Terseq\Builders\Shared\BuilderParts\ConditionExpression::class)]
+#[CoversClass(\Terseq\Builders\Shared\BuilderParts\AppendAttributes::class)]
 #[CoversClass(ReturnValuesOnConditionCheckFailure::class)]
 final class PutItemTest extends TestCase
 {
@@ -37,6 +40,16 @@ final class PutItemTest extends TestCase
                     'S' => 'release-date',
                 ],
             ],
+            'ConditionExpression' => 'attribute_exists(#BookId) AND #ReleaseDate = :releasedate_0',
+            'ExpressionAttributeValues' => [
+                ':releasedate_0' => [
+                    'S' => 'release-date',
+                ],
+            ],
+            'ExpressionAttributeNames' => [
+                '#BookId' => 'BookId',
+                '#ReleaseDate' => 'ReleaseDate',
+            ],
         ],
             (new PutItem())
             ->table(new BooksTable())
@@ -44,6 +57,11 @@ final class PutItemTest extends TestCase
             ->returnItemCollectionMetrics(ReturnItemCollectionMetrics::Size)
             ->returnValues(ReturnValues::AllOld)
             ->returnValuesOnConditionCheckFailure(ReturnValues::AllNew)
+            ->conditionExpression(
+                static fn (ConditionExpression $ce) => $ce
+                    ->attributeExists('BookId')
+                    ->equal('ReleaseDate', 'release-date')
+            )
             ->item([
                 'BookId' => 'book-id-for-delete',
                 'ReleaseDate' => 'release-date',
