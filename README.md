@@ -108,7 +108,7 @@ $result = $manager->query()
     ->table(['Books', 'BookId'])
     ->pk('super-cool-id')
     ->consistentRead()
-    ->disaptch();
+    ->dispatch();
 ```
 
 #### TransactGetItems
@@ -164,19 +164,14 @@ $manager->transactWriteItems()
 #### BatchGetItem
 
 ```php
+use Terseq\Builders\Operations\BatchGetItem\Operations\BatchGet;
+
 $manager->batchGetItem()
     ->get(
-        [
-            'BookId' => 'super-book-1',
-            'Author' => 'Unknown',
-        ],
-        table: ['Books', 'BookId'],
-    )
-    ->get(
-        [
-            'BookId' => 'super-book-2',
-            'Author' => 'Incognito',
-        ],
+        fn (BatchGet $get) => $get
+            ->pk('super-book-1')
+            ->pk('super-book-2')
+            ->composite('book-id', 'release-date'),
         table: ['Books', 'BookId'],
     )
     ->dispatch();
@@ -201,9 +196,7 @@ $manager->batchWriteItem()
         table: ['Books', 'BookId'],
     )
     ->delete(
-        [
-            'BookId' => 'super-book-3',
-        ],
+        'super-book-3',
         table: ['Books', 'BookId'],
     )
     ->dispatch();
@@ -211,12 +204,13 @@ $manager->batchWriteItem()
 
 ## Table
 
-### Table as abject (recommended)
+### Table as object (recommended)
 
 #### Example of using table object
 
 ```php
 use Terseq\Builders\Table;
+use Terseq\Builders\Keys;
 
 class Books extends Table 
 {
@@ -236,6 +230,7 @@ class Books extends Table
 
 ```php
 use Terseq\Builders\Table;
+use Terseq\Builders\Keys;
 
 class BooksTable extends Table 
 {
@@ -261,7 +256,7 @@ class BooksTable extends Table
     public function getSecondaryIndexMap(): ?array
     {
         return [
-            'AuthorIndex' => new Keys(partitionKey: 'AuthorId', sortKey: 'AuthorBornYear'),
+            'AuthorIndex' => new Keys(partitionKey: 'AuthorId', sortKey: 'BornDate'),
             'GenreIndex' => new Keys(partitionKey: 'GenreId', sortKey: 'GenreName'),
             'LsiExample' => new Keys(partitionKey: 'BookId', sortKey: 'AuthorBornYear'),
         ];
@@ -328,7 +323,7 @@ That's all! Now you can build queries without passing table name and keys.
 
 ```php
 // Query
-$manager->getItem()->pk('super-cool-id')->disaptch();
+$manager->getItem()->pk('super-cool-id')->dispatch();
 
 $manager->batchWriteItem()
     ->put(
@@ -343,11 +338,7 @@ $manager->batchWriteItem()
             'Author' => 'Incognito',
         ],
     )
-    ->delete(
-        [
-            'BookId' => 'super-book-3',
-        ],
-    )
+    ->delete('super-book-3')
     ->dispatch();
 ```
 
@@ -387,8 +378,8 @@ $client->updateItem(
 );
 ```
 
-### Example of using Terseq
-for the same operation
+### Example of using Terseq for the same operation
+
 ```php
 $manager->updateItem()
     ->table(['Books', 'BookId'])
