@@ -44,7 +44,6 @@ final class GetItemTest extends TestCase
                 '#Title' => 'Title',
             ],
             'ProjectionExpression' => '#Author, #Title',
-            'ExpressionAttributeValues' => [],
         ], $builder->getQuery());
     }
 }

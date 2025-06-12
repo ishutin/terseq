@@ -11,7 +11,7 @@ trait AppendAttributes
         if ($this->attributes) {
             $config['ExpressionAttributeNames'] = $this->attributes;
 
-            if ($withValues) {
+            if ($withValues && !$this->getValuesStorage()->isEmpty()) {
                 $config['ExpressionAttributeValues'] = $this->marshaler
                     ->marshalItem(
                         $this->getValuesStorage()->getValues(),

@@ -13,6 +13,11 @@ class ValuesStorage
         return array_merge(...array_values($this->values));
     }
 
+    public function isEmpty(): bool
+    {
+        return empty($this->values);
+    }
+
     public function createValue(string $attribute, mixed $value): string
     {
         $attribute = str_replace('.', '_', $attribute);
